@@ -1,0 +1,31 @@
+{
+  "name": "calorie-app",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev:api\" \"npm -w apps/web run dev\"",
+    "dev:api": "npm run -w apps/api dev",
+
+    "web:dev": "npm --prefix apps/web run dev",
+    "web:build": "npm --prefix apps/web run build",
+
+    "web:test": "npm --prefix apps/web run test",
+    "web:test:watch": "npm --prefix apps/web run test:watch",
+
+    "web:cypress:open": "npm --prefix apps/web run cypress:open",
+    "web:cypress:run": "npm --prefix apps/web run cypress:run",
+
+    "web:test:unit": "start-server-and-test web:dev http://localhost:5173 web:test",
+    "web:test:e2e": "start-server-and-test web:dev http://localhost:5173 web:cypress:run"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "start-server-and-test": "^2.1.2"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "tailwindcss": "^4.1.13"
+  }
+}
