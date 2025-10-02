@@ -56,12 +56,14 @@ npm install
 Ejecutables desde la raíz del proyecto:
 
 ▶️ Desarrollo
+```
 npm run dev       # Levanta frontend + backend en paralelo
-
+```
 🖥️ Frontend
+```
 npm run web:dev      # Levanta solo el frontend
 npm run web:build    # Build del frontend
-
+```
 🧪 Testing
 ```
 npm run test --workspace apps/api # Tests Api (Todos)
