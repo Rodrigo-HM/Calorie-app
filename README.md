@@ -13,7 +13,7 @@ El proyecto está organizado como **monorepo** e incluye tanto el **frontend (Re
 ---
 
 ## 📂 Estructura del proyecto
-
+```
 calorie-app/
 │── apps/
 │ ├── api/ # Backend (Node/Express + DB en JSON/SQL)
@@ -21,7 +21,7 @@ calorie-app/
 │
 │── package.json # Configuración del monorepo con workspaces
 │── README.md
-
+```
 
 ---
 
