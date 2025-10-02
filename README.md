@@ -63,12 +63,13 @@ npm run web:dev      # Levanta solo el frontend
 npm run web:build    # Build del frontend
 
 🧪 Testing
+```
 npm run test --workspace apps/api # Tests Api (Todos)
 npm run web:test                  # Tests unitarios (Vitest)
 npm run web:test:unit             # Test unitarios
 npm run web:test:watch            # Tests unitarios en modo watch
 npm run web:test:e2e              # Tests end-to-end (Cypress) con servidor levantado automáticamente
-
+```
 ---
 
 ## ✅ Tests automáticos
