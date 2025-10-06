@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import { buildAuthService } from "../composition/auth.composition";
-const authService = buildAuthService();
+import { AuthSchema } from "../schemas/auth.dto"; // Importa el esquema de validación de datos que usamos debajo para cada request
+
+const authService = buildAuthService(); // Servicio de autenticación para que la logica esté separada del controlador
 
 export const AuthController = {
 async register(req: Request, res: Response) {
-const { email, password } = req.body || {};
-if (!email || !password) {
-return res.status(400).json({ error: "Email y password requeridos" });
+const parsed = AuthSchema.safeParse(req.body);
+if (!parsed.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.flatten() });
 }
+const { email, password } = parsed.data;
 try {
 const user = await authService.register(email, password);
 return res.status(201).json(user);
@@ -18,8 +21,11 @@ return res.status(500).json({ error: "Error registrando usuario" });
 },
 
 async login(req: Request, res: Response) {
-const { email, password } = req.body || {};
-if (!email || !password) return res.status(400).json({ error: "Email y password requeridos" });
+const parsed = AuthSchema.safeParse(req.body);
+if (!parsed.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
+const { email, password } = parsed.data;
 try {
 const result = await authService.login(email, password);
 return res.status(200).json(result);

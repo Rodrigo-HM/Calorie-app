@@ -1,6 +1,8 @@
 import { UserModel } from "../../models/user.model";
 import { UserRepository, DomainUser } from "../user.repository";
 
+// Adaptador que implementa UserRepository usando UserModel, para  no tocar modelo ya existente, pero en el futuro depender de la interfaz
+
 export class UserModelAdapter implements UserRepository {
   async getByEmail(email: string): Promise<DomainUser | null> {
     const u = UserModel.getByEmail(email);

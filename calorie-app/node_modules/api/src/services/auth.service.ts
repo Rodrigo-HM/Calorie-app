@@ -2,9 +2,11 @@ import { UserRepository } from "../repositories/user.repository";
 import { PasswordHasher } from "./crypto/password-hasher";
 import { TokenService } from "./token/token-service";
 
+
+// Servicio de autenticación que maneja el registro y login de usuarios 
 export class AuthService {
-  constructor(
-    private readonly users: UserRepository,
+  constructor( //recibe las dependencias por inyección
+    private readonly users: UserRepository, 
     private readonly hasher: PasswordHasher,
     private readonly tokens: TokenService,
     private readonly jwtExpiresIn: string | number

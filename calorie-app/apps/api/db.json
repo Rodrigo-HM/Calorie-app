@@ -91,6 +91,13 @@
       "emailNorm": "john+1759754141930@example.com",
       "passwordHash": "$2b$10$RJUJdHcbsB9EgLYxcOLC2uRggxuDlsu7IUWrOuyGY4WoXBf/M2hza",
       "createdAt": "2025-10-06T12:35:42.001Z"
+    },
+    {
+      "id": "32ef8f07-d9cd-40cb-8b54-472be299179d",
+      "email": "john+1759754974763@example.com",
+      "emailNorm": "john+1759754974763@example.com",
+      "passwordHash": "$2b$10$XyRXotHY4VIrWvxw9mbps.HN6wRV41nz2pZyz7aabNRlocY5vrDA2",
+      "createdAt": "2025-10-06T12:49:34.833Z"
     }
   ],
   "foods": [

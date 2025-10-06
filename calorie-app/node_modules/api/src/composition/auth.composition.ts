@@ -9,3 +9,4 @@ export function buildAuthService() {
   const tokens = new JwtTokenService(config.jwtSecret);
   return new AuthService(userRepository, hasher, tokens, config.jwtExpiresIn);
 }
+//Cablea  las dependencias concretas de AuthService y las expone para ser usadas en los controladores
