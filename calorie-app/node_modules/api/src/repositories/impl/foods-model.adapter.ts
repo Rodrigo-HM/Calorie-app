@@ -1,3 +1,5 @@
+//El adapter “traduce” esas operaciones a tu modelo real (FoodModel) o la DB (LowDB).
+
 import { FoodsRepository } from "../foods.repository";
 import { FoodModel } from "../../models/food.model";
 

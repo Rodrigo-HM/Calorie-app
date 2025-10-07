@@ -1,3 +1,5 @@
+//valida con zod, llama al servicio y devuelve la respuesta.
+
 import { Request, Response } from "express";
 import { FoodsQuerySchema, FoodIdParamsSchema } from "../schemas/foods.dto";
 import { buildFoodsService } from "../composition/foods.composition";

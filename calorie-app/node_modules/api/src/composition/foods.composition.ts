@@ -1,3 +1,5 @@
+//crea el servicio inyectándole el repositorio/adapter concreto.
+
 import { FoodsService } from "../services/foods.service";
 import { FoodsModelAdapter } from "../repositories/impl/foods-model.adapter";
 

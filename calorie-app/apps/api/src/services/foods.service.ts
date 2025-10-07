@@ -1,3 +1,5 @@
+//aplica reglas de negocio (por ejemplo, paginar, filtrar, preparar datos).
+
 import { FoodsRepository } from "../repositories/foods.repository";
 export class FoodsService {
 constructor(private readonly repo: FoodsRepository) {}

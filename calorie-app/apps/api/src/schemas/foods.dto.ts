@@ -1,3 +1,4 @@
+//valida lo que entra por HTTP (query y params).
 import { z } from "zod";
 export const FoodsQuerySchema = z.object({
 search: z.string().trim().max(100).optional(),

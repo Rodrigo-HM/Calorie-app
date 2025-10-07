@@ -1,3 +1,5 @@
+//La interfaz define qué operaciones necesitamos (listar, getById).
+
 export interface FoodsRepository {
 list(params: { search?: string; page: number; pageSize: number }): Promise<{
 items: Array<{
