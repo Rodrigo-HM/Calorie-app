@@ -1,6 +1,6 @@
 import { EntriesRepository, Entry } from "../entries.repository";
 import { EntryModel } from "../../models/entry.model";
-import { db } from "../../db";
+import { db } from "../../database";
 export class EntriesModelAdapter implements EntriesRepository {
 async listByUserAndDay(userId: string, day: string): Promise<Entry[]> {
 // EntryModel ya hace db.read() internamente

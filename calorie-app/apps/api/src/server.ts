@@ -1,5 +1,5 @@
 import app from "./app";
-import { initDb, seedFoodsIfEmpty } from "./db";
+import { initDb, seedFoodsIfEmpty } from "./database";
 initDb();
 seedFoodsIfEmpty();
 

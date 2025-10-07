@@ -1,37 +1,36 @@
-import { Request, Response } from "express";
-import { ProfileModel, type Activity, type GoalKind } from "../models/profile.model";
-import { GoalModel } from "../models/goal.model";
-import { calcGoalsFromProfile } from "../services/nutrition.service";
+import { Request, Response, RequestHandler } from "express";
+import { buildProfileService } from "../composition/profile.composition";
+import { ProfileUpsertSchema } from "../schemas/profile.dto";
 
-export const ProfileController = {
-    get(req: any, res: Response) {
-        const userId = req.user.sub as string;
-        const p = ProfileModel.getByUser(userId);
-        res.json(p || null);
-    },
+const service = buildProfileService();
 
-    put(req: any, res: Response) {
-        const userId = req.user.sub as string;
-        const { sex, age, heightCm, weightKg, bodyFat, activity, goal } = req.body || {};
+type AuthedRequest = Request & {
+user: { id: string; sub?: string; email?: string };
+};
 
-        // Validación mínima
-        if (!sex || !["male", "female"].includes(sex)) return res.status(400).type("text").send("sex inválido");
-        if (!Number.isInteger(age) || age <= 0) return res.status(400).type("text").send("age inválido");
-        if (!Number.isInteger(heightCm) || heightCm <= 0) return res.status(400).type("text").send("heightCm inválido");
-        if (typeof weightKg !== "number" || weightKg <= 0) return res.status(400).type("text").send("weightKg inválido");
-        if (bodyFat != null && (typeof bodyFat !== "number" || bodyFat < 0 || bodyFat > 60)) return res.status(400).type("text").send("bodyFat inválido");
-        const activities: Activity[] = ["sedentary", "light", "moderate", "active", "veryActive"];
-        if (!activities.includes(activity)) return res.status(400).type("text").send("activity inválida");
-        const goals: GoalKind[] = ["cut", "maintain", "bulk"];
-        if (!goals.includes(goal)) return res.status(400).type("text").send("goal inválido");
+export const ProfileController: {
+get: RequestHandler;
+put: RequestHandler;
+} = {
+get: async (req, res) => {
+const userId = (req as AuthedRequest).user.id;
+const p = await service.get(userId);
+return res.json(p ?? null);
+},
 
-        // Guarda perfil
-        const saved = ProfileModel.upsert(userId, { sex, age, heightCm, weightKg, bodyFat, activity, goal });
-
-        // Calcula y guarda metas
-        const g = calcGoalsFromProfile({ sex, age, heightCm, weightKg, bodyFat, activity, goal });
-        GoalModel.upsert(userId, g);
-
-        res.json({ profile: saved, goals: g });
-    },
+put: async (req, res) => {
+const parsed = ProfileUpsertSchema.safeParse(req.body);
+if (!parsed.success) {
+return res
+.status(400)
+.json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
+const userId = (req as AuthedRequest).user.id;
+try {
+const out = await service.set(userId, parsed.data);
+return res.status(200).json(out);
+} catch (e: any) {
+return res.status(500).json({ error: "Error guardando perfil" });
+}
+},
 };

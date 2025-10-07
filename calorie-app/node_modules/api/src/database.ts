@@ -3,26 +3,19 @@ import fs from "fs";
 import { LowSync } from "lowdb";
 import { JSONFileSync } from "lowdb/node";
 import { v4 as uuidv4 } from "uuid";
-
-// Extrae seedFoodsIfEmpty() e initDb(); llama a ambas desde server.ts/app.ts
-export function initDb() { db.read(); if (!db.data) { db.data = { users: [], foods: [], entries: [], goals: [], profiles: [], weightLogs: [] }; } }
-export function seedFoodsIfEmpty() { /* tu seed existente, llamado explícitamente */ }
+import { config } from "./config/config";
 
 type DBSchema = {
 users: any[];
 foods: any[];
 entries: any[];
 goals: any[];
-profiles?: any[];
-weightLogs?: any[];
+profiles: any[];
+weightLogs: any[];
 };
 
-// Fallback fijo a apps/api/db.json
-const defaultDbPath = path.join(__dirname, "..", "db.json");
-const dbFile = process.env.DB_PATH || defaultDbPath;
+const dbFile = config.dbPath;
 
-
-// Asegura directorio y archivo
 const dir = path.dirname(dbFile);
 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 if (!fs.existsSync(dbFile)) {
@@ -32,7 +25,6 @@ JSON.stringify({ users: [], foods: [], entries: [], goals: [], profiles: [], wei
 );
 }
 
-// Usa dbFile en el adapter (no hardcodear "db.json")
 const adapter = new JSONFileSync<DBSchema>(dbFile);
 export const db = new LowSync<DBSchema>(adapter, {
 users: [],
@@ -43,13 +35,20 @@ profiles: [],
 weightLogs: [],
 });
 
+export function initDb() {
 db.read();
-if (!db.data) {
-db.data = { users: [], foods: [], entries: [], goals: [], profiles: [], weightLogs: [] };
+db.data!.users ||= [];
+db.data!.foods ||= [];
+db.data!.entries ||= [];
+db.data!.goals ||= [];
+db.data!.profiles ||= [];
+db.data!.weightLogs ||= [];
+db.write();
 }
 
-// Seed de foods si está vacío
-if (db.data.foods.length === 0) {
+export function seedFoodsIfEmpty() {
+db.read();
+if ((db.data!.foods ?? []).length > 0) return;
 const now = new Date().toISOString();
 const base = [
 { name: "Manzana", kcal: 52, protein: 0.3, carbs: 14, fat: 0.2 },
@@ -63,10 +62,9 @@ const base = [
 { name: "Yogur natural 0%", kcal: 59, protein: 10, carbs: 3.6, fat: 0.4 },
 { name: "Pan integral", kcal: 247, protein: 13, carbs: 41, fat: 4.2 },
 ];
-db.data.foods.push(...base.map(f => ({ id: uuidv4(), createdAt: now, ...f })));
-}
-
+db.data!.foods.push(...base.map(f => ({ id: uuidv4(), createdAt: now, ...f })));
 db.write();
+}
 
 export function save() {
 db.write();

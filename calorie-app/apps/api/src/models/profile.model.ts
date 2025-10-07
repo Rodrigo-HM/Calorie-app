@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../database";
 export type Activity = "sedentary" | "light" | "moderate" | "active" | "veryActive";
 export type GoalKind = "cut" | "maintain" | "bulk";
 

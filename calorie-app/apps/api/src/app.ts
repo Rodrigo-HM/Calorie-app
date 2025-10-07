@@ -2,10 +2,16 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import "./db";
+import * as DB from "./database"; // <- importa funciones
 import router from "./routes";
+import { config } from "./config/config";
+import { initDb, seedFoodsIfEmpty } from "./database"; 
 
 export const createApp = () => {
+initDb();
+// si está vacío, siembra (también en test)
+seedFoodsIfEmpty();
+
 const app = express();
 app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
@@ -14,10 +20,8 @@ app.use(morgan("dev"));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-// Montar rutas antes del handler de errores
 app.use("/api", router);
 
-// Handler de errores al final
 app.use((err: any, _req: any, res: any, _next: any) => {
 console.error(err);
 res.status(500).json({ error: "Internal Error" });

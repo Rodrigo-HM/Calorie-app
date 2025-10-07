@@ -1,5 +1,5 @@
 import { Goals, GoalsRepository } from "../goals.repository";
-import { db } from "../../db";
+import { db } from "../../database";
 
 export class GoalsAdapter implements GoalsRepository {
 async getByUserId(userId: string): Promise<Goals | null> {

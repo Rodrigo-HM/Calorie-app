@@ -421,7 +421,7 @@
       "id": "87ff41a5-498b-454c-a8c0-08d7f7354025",
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
       "foodId": "32c35694-61a4-4f6c-bbba-b5b4e197709f",
-      "grams": 130,
+      "grams": 195,
       "date": "2025-10-07T07:05:27.113Z"
     },
     {
@@ -444,16 +444,25 @@
       "foodId": "804c4f3f-e80c-4206-b1e5-a7cf833dfc53",
       "grams": 145,
       "date": "2025-10-07T09:11:19.188Z"
+    },
+    {
+      "id": "5db14141-7513-4e0e-83be-6308d27a8059",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-07T10:19:11.299Z"
     }
   ],
   "goals": [
     {
       "id": "aecf716a-aa89-416c-975a-733ddf936694",
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "calories": 3216,
+      "calories": 2716,
       "protein": 160,
-      "carbs": 482,
-      "fat": 72
+      "carbs": 424,
+      "fat": 72,
+      "kcal": 2984,
+      "updatedAt": "2025-10-07T10:39:34.927Z"
     },
     {
       "id": "5a61c51e-2446-40d3-8266-0bd04e494596",
@@ -495,10 +504,10 @@
       "age": 26,
       "heightCm": 181,
       "weightKg": 80,
-      "bodyFat": 20,
+      "bodyFat": 10,
       "activity": "moderate",
-      "goal": "bulk",
-      "updatedAt": "2025-10-07T09:19:17.427Z"
+      "goal": "maintain",
+      "updatedAt": "2025-10-07T10:39:34.926Z"
     },
     {
       "userId": "5a61c51e-2446-40d3-8266-0bd04e494596",
@@ -854,6 +863,62 @@
       "date": "2025-10-07",
       "weightKg": 80,
       "createdAt": "2025-10-07T08:51:48.641Z"
+    },
+    {
+      "id": "a9893d25-cb5a-493b-8274-4b775d26de4d",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07",
+      "weightKg": 85,
+      "createdAt": "2025-10-07T09:55:16.019Z"
+    },
+    {
+      "id": "245bf3be-a33e-4409-a4e7-a431eeed0a87",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:05:20.949Z",
+      "weightKg": 90,
+      "createdAt": "2025-10-07T10:05:20.950Z"
+    },
+    {
+      "id": "330f8280-ff78-414f-b737-6b6edb127cc8",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:05:27.677Z",
+      "weightKg": 80,
+      "createdAt": "2025-10-07T10:05:27.677Z"
+    },
+    {
+      "id": "dae88a51-44a5-4eee-ba71-c7e0be18a239",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:09:14.117Z",
+      "weightKg": 90,
+      "createdAt": "2025-10-07T10:09:14.118Z"
+    },
+    {
+      "id": "b6c460fb-53c5-4bdb-857d-ae9f21ef2e14",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:19:23.488Z",
+      "weightKg": 50,
+      "createdAt": "2025-10-07T10:19:23.488Z"
+    },
+    {
+      "id": "0faffbb2-20ee-485b-9751-ce6e9f5eb29b",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:19:27.297Z",
+      "weightKg": 55,
+      "createdAt": "2025-10-07T10:19:27.298Z"
+    },
+    {
+      "id": "c235b60a-6763-4229-869b-92b751f33a40",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:39:17.720Z",
+      "weightKg": 90,
+      "createdAt": "2025-10-07T10:39:17.721Z"
+    },
+    {
+      "id": "c6c45e07-0684-427f-90c1-3504d49ac1b4",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-07T10:39:32.171Z",
+      "weightKg": 80,
+      "createdAt": "2025-10-07T10:39:32.171Z"
     }
   ]
 }

@@ -22,26 +22,8 @@ return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.fl
 const userId = (req as AuthedRequest).user.id;
 const day = parsed.data.date || new Date().toISOString().slice(0, 10);
 
-const items = await service.listByDay(userId, day);
-
-// calcular totales con FoodModel (solo cálculo; persistencia ya es vía servicio)
-const foods = FoodModel.list();
-const map = new Map(foods.map((f) => [f.id, f]));
-const totals = items.reduce(
-(acc, e) => {
-const f = map.get(e.foodId);
-if (!f) return acc;
-const factor = e.grams / 100;
-acc.kcal += f.kcal * factor;
-acc.protein += f.protein * factor;
-acc.carbs += f.carbs * factor;
-acc.fat += f.fat * factor;
-return acc;
-},
-{ kcal: 0, protein: 0, carbs: 0, fat: 0 }
-);
-
-res.json({ items, totals });
+const { items, totals } = await service.listWithTotals(userId, day);
+return res.json({ items, totals });
 };
 
 export const create: RequestHandler = async (req, res) => {

@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../database";
 
 export type Goal = {
 id: string; // usamos userId como id
