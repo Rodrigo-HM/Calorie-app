@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { buildAuthService } from "../composition/auth.composition";
-import { AuthSchema } from "../schemas/auth.dto"; // Importa el esquema de validación de datos que usamos debajo para cada request
+import { buildAuthService } from "../composition/auth.composition"; // OJO: con llaves
+import { AuthSchema } from "../schemas/auth.dto";
 
-const authService = buildAuthService(); // Servicio de autenticación para que la logica esté separada del controlador
+const authService = buildAuthService();
 
 export const AuthController = {
 async register(req: Request, res: Response) {

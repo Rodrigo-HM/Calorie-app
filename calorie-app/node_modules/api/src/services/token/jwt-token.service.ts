@@ -1,22 +1,15 @@
-// apps/api/src/services/token/jwt-token.service.ts
-import jwt, { SignOptions, Secret, JwtPayload } from "jsonwebtoken";
-import { TokenService } from "./token-service";
+import jwt from "jsonwebtoken";
+import { TokenService, TokenVerifier } from "./token.types";
 
-export class JwtTokenService implements TokenService {
-  constructor(private readonly secret: Secret) {}
+export class JwtTokenService implements TokenService, TokenVerifier {
+constructor(private readonly secret: string) {}
 
-  sign(payload: Record<string, unknown>, options?: { expiresIn?: string | number }): Promise<string> {
-    const signOptions: SignOptions = {};
-    if (options?.expiresIn !== undefined) {
-      // jsonwebtoken acepta string | number; el type guard evita la ambigüedad del overload
-      signOptions.expiresIn = options.expiresIn as any;
-    }
+sign(payload: object, options?: jwt.SignOptions): Promise<string> {
+const token = jwt.sign(payload as any, this.secret, options);
+return Promise.resolve(token);
+}
 
-    return new Promise<string>((resolve, reject) => {
-      jwt.sign(payload, this.secret, signOptions, (err, token) => {
-        if (err || !token) return reject(err ?? new Error("Token generation failed"));
-        resolve(token);
-      });
-    });
-  }
+verify<T = any>(token: string): T {
+return jwt.verify(token, this.secret) as T;
+}
 }

@@ -1,39 +1,26 @@
-import { error } from "console";
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import { TokenVerifier } from "../services/token/token.types";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
+export function buildAuthMiddleware(verifier: TokenVerifier) {
+return function auth(req: Request, res: Response, next: NextFunction) {
+const isTest = process.env.NODE_ENV === "test";
+const header = req.headers.authorization;
+const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
 
-type JwtPayload = { sub: string; email?: string; iat?: number; exp?: number };
-export type AuthenticatedRequest = Request & { user?: JwtPayload };
-
-function extractBearerToken(h?: string): string | null {
-  if (!h) return null;
-  return h.startsWith("Bearer ") ? h.slice(7).trim() : null;
+// bypass en test: sin token o token == "test"
+if (isTest && (!token || token === "test")) {
+  (req as any).user = { id: "test-user", sub: "test-user", email: "test@example.com" };
+  return next();
 }
 
-export function auth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const token = extractBearerToken(req.headers.authorization as string | undefined);
+if (!token) return res.status(401).json({ error: "No token" });
 
-  if (process.env.NODE_ENV === "test") {
-    if (!token || token === "test") {
-      req.user = { sub: "test-user" };
-      return next();
-    }
-    try {
-      req.user = jwt.verify(token, JWT_SECRET) as JwtPayload;
-      return next();
-    } catch {
-      return res.status(401).json({ error: "Token inválido" });
-    }
-  }
-
-  if (!token) return res.status(401).json({ error: "No token" });
-
-  try {
-    req.user = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    return next();
-  } catch {
-    return res.status(401).json({ error: "Token inválido" });
-  }
+try {
+  const payload = verifier.verify<{ sub: string; email?: string }>(token);
+  (req as any).user = { id: payload.sub, sub: payload.sub, email: payload.email };
+  return next();
+} catch {
+  return res.status(401).json({ error: "Token inválido" });
+}
+};
 }
