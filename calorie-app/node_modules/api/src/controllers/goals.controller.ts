@@ -1,25 +1,37 @@
-import { Request, Response } from "express";
-import { GoalModel } from "../models/goal.model";
+import { Request, Response, RequestHandler } from "express";
+import { GoalsUpsertSchema } from "../schemas/goals.dto";
+import { buildGoalsService } from "../composition/goals.composition";
 
-export const GoalsController = {
-    get(req: Request, res: Response) {
-        const g = GoalModel.getByUser(req.user.sub); //req.user viene del middleware auth, busca las metas del usuario autenticado
-        res.json(g || null);
-    },
-    put(req: Request, res: Response) {
-        const { calories, protein, carbs, fat } = req.body || {}; //lee los datos del body
-        if (!Number.isInteger(calories) || calories <= 0) {
-        return res.status(400).json({ error: "calories debe ser entero > 0" });
-        }
-        type Patch = { calories: number; protein?: number; carbs?: number; fat?: number }; //tipo para el patch para evitar el any debajo
-        const patch: Patch = { calories };
-        if (protein != null && (!Number.isInteger(protein) || protein < 0)) return res.status(400).json({ error: "protein inválido" });
-        if (carbs != null && (!Number.isInteger(carbs) || carbs < 0)) return res.status(400).json({ error: "carbs inválido" });
-        if (fat != null && (!Number.isInteger(fat) || fat < 0)) return res.status(400).json({ error: "fat inválido" });
-        if (protein != null) patch.protein = protein;
-        if (carbs != null) patch.carbs = carbs;
-        if (fat != null) patch.fat = fat;
-        const g = GoalModel.upsert(req.user.sub, patch); //si pasa la validación, crea o actualiza la meta del usuario autenticado
-        res.json(g);
-    }
+const service = buildGoalsService();
+
+type AuthedRequest = Request & {
+user: { id: string; sub?: string; email?: string };
+};
+
+export const GoalsController: {
+get: RequestHandler;
+set: RequestHandler;
+} = {
+get: async (req, res) => {
+const userId = (req as AuthedRequest).user.id;
+const goals = await service.get(userId);
+// contrato actual: devolver null si no hay metas
+return res.status(200).json(goals ?? null);
+},
+
+set: async (req, res) => {
+const parsed = GoalsUpsertSchema.safeParse(req.body);
+if (!parsed.success) {
+return res
+.status(400)
+.json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
+const userId = (req as AuthedRequest).user.id;
+try {
+const saved = await service.set(userId, parsed.data);
+return res.status(200).json(saved);
+} catch (e: any) {
+return res.status(500).json({ error: "Error guardando metas" });
+}
+},
 };

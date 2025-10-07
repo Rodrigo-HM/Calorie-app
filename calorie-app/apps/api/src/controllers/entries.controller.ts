@@ -1,17 +1,30 @@
 import { Request, Response, RequestHandler } from "express";
-import { EntryModel } from "../models/entry.model";
-import { FoodModel } from "../models/food.model";
-import { db } from "../db";
+import {
+EntriesListQuerySchema,
+CreateEntrySchema,
+UpdateEntrySchema,
+EntryIdParamsSchema,
+} from "../schemas/entries.dto";
+import { buildEntriesService } from "../composition/entries.composition";
+import { FoodModel } from "../models/food.model"; // solo para totales (no para validar en create)
+
+const service = buildEntriesService();
 
 type AuthedRequest = Request & {
 user: { id: string; sub?: string; email?: string };
 };
 
-export const listToday: RequestHandler = (req, res) => {
+export const listToday: RequestHandler = async (req, res) => {
+const parsed = EntriesListQuerySchema.safeParse(req.query);
+if (!parsed.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
 const userId = (req as AuthedRequest).user.id;
-const day = (req.query.date as string) || new Date().toISOString().slice(0, 10);
-const items = EntryModel.listByUserAndDay(userId, day);
+const day = parsed.data.date || new Date().toISOString().slice(0, 10);
 
+const items = await service.listByDay(userId, day);
+
+// calcular totales con FoodModel (solo cálculo; persistencia ya es vía servicio)
 const foods = FoodModel.list();
 const map = new Map(foods.map((f) => [f.id, f]));
 const totals = items.reduce(
@@ -31,47 +44,60 @@ return acc;
 res.json({ items, totals });
 };
 
-export const create: RequestHandler = (req, res) => {
+export const create: RequestHandler = async (req, res) => {
+const parsed = CreateEntrySchema.safeParse(req.body);
+if (!parsed.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
 const userId = (req as AuthedRequest).user.id;
-const { foodId, grams, date } = req.body || {};
+const { foodId, grams, date } = parsed.data;
 
-if (!foodId || typeof foodId !== "string") {
-return res.status(400).json({ error: "foodId requerido" });
-}
-if (!Number.isInteger(grams) || grams <= 0) {
-return res.status(400).json({ error: "grams debe ser entero positivo" });
-}
-
-const food = FoodModel.getById(foodId);
-if (!food) return res.status(400).json({ error: "foodId inválido" });
-
+try {
 const iso = (date ? new Date(date) : new Date()).toISOString();
-const item = EntryModel.create(userId, foodId, Number(grams), iso);
-res.status(201).json(item);
+const item = await service.create(userId, { foodId, grams, dateISO: iso });
+return res.status(201).json(item);
+} catch (e: any) {
+if (e?.code === "FOOD_NOT_FOUND") {
+return res.status(400).json({ error: "foodId inválido" });
+}
+return res.status(500).json({ error: "Error creando entry" });
+}
 };
 
-export const remove: RequestHandler = (req, res) => {
+export const remove: RequestHandler = async (req, res) => {
+const parsed = EntryIdParamsSchema.safeParse(req.params);
+if (!parsed.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsed.error.flatten() });
+}
 const userId = (req as AuthedRequest).user.id;
-const removed = EntryModel.deleteByIdForUser(req.params.id, userId);
-if (!removed) return res.status(404).json({ error: "Not found" });
-res.json(removed);
+try {
+const removed = await service.remove(userId, parsed.data.id);
+return res.json(removed);
+} catch (e: any) {
+if (e?.code === "NOT_FOUND") return res.status(404).json({ error: "Not found" });
+return res.status(500).json({ error: "Error eliminando entry" });
+}
 };
 
-export const update: RequestHandler = (req, res) => {
-const userId = (req as AuthedRequest).user.id;
-const id = req.params.id;
-const { grams } = req.body || {};
-
-if (!Number.isInteger(grams) || grams <= 0) {
-return res.status(400).type("text").send("grams inválido");
+export const update: RequestHandler = async (req, res) => {
+const parsedParams = EntryIdParamsSchema.safeParse(req.params);
+if (!parsedParams.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsedParams.error.flatten() });
+}
+const parsedBody = UpdateEntrySchema.safeParse(req.body);
+if (!parsedBody.success) {
+return res.status(400).json({ error: "Datos inválidos", errors: parsedBody.error.flatten() });
 }
 
-db.read();
-const arr = (db.data as any).entries as any[];
-const item = arr.find((e) => e.id === id && e.userId === userId);
-if (!item) return res.status(404).type("text").send("Not found");
+const userId = (req as AuthedRequest).user.id;
+const id = parsedParams.data.id;
+const { grams } = parsedBody.data;
 
-item.grams = grams;
-db.write();
-res.json(item);
+try {
+const item = await service.update(userId, id, grams);
+return res.json(item);
+} catch (e: any) {
+if (e?.code === "NOT_FOUND") return res.status(404).type("text").send("Not found");
+return res.status(500).json({ error: "Error actualizando entry" });
+}
 };
