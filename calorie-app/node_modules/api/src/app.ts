@@ -13,15 +13,20 @@ initDb();
 seedFoodsIfEmpty();
 
 const app = express();
+//middlewares globales
 app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
 
+//define health
+
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
+//monta el router principal en /api
 app.use("/api", router);
 
+//Manejo de errores genéricos
 app.use((err: any, _req: any, res: any, _next: any) => {
 console.error(err);
 res.status(500).json({ error: "Internal Error" });

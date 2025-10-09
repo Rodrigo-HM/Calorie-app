@@ -10,6 +10,7 @@ Composition: ensambla servicio con sus dependencias (DIP)
 Routes: mapea URL → controller
 
 Diagrama (texto)
+
 Cliente (HTTP)
 ↓
 Routes (Express Router)

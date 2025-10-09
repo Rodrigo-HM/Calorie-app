@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { TokenVerifier } from "../services/token/token.types";
 
+
+// inyecta el verificador de tokens (JWT, o el que sea)
 export function buildAuthMiddleware(verifier: TokenVerifier) {
 return function auth(req: Request, res: Response, next: NextFunction) {
 const isTest = process.env.NODE_ENV === "test";

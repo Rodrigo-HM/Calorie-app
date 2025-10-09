@@ -1,6 +1,8 @@
 import { EntriesRepository, Entry } from "../entries.repository";
 import { EntryModel } from "../../models/entry.model";
 import { db } from "../../database";
+
+
 export class EntriesModelAdapter implements EntriesRepository {
 async listByUserAndDay(userId: string, day: string): Promise<Entry[]> {
 // EntryModel ya hace db.read() internamente
@@ -18,7 +20,7 @@ return (removed as any) ?? null;
 }
 
 async updateGramsForUser(id: string, userId: string, grams: number): Promise<Entry | null> {
-// Update no existe en EntryModel; usamos db directo (como hacías en el controller)
+// Update no existe en EntryModel; usamos db directo 
 db.read();
 const arr = (db.data as any).entries as any[];
 const item = arr.find((e) => e.id === id && e.userId === userId);

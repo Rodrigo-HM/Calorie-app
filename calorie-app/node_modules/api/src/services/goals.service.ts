@@ -8,7 +8,7 @@ return this.repo.getByUserId(userId);
 }
 
 async set(userId: string, data: { kcal: number; protein: number; carbs: number; fat: number }): Promise<Goals> {
-// Aquí podrías añadir reglas de negocio (ej. rangos máximos)
+
 return this.repo.upsert(userId, data);
 }
 }
