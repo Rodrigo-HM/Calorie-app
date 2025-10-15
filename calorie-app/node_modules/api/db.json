@@ -458,6 +458,41 @@
       "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
       "grams": 105,
       "date": "2025-10-07T10:44:22.748Z"
+    },
+    {
+      "id": "d4596142-b4e9-42d5-bbc5-d7264bf3f7f4",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-13T10:25:08.819Z"
+    },
+    {
+      "id": "315d7dcb-81f9-4210-8a76-f487cc24a210",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-13T10:25:08.991Z"
+    },
+    {
+      "id": "76a8fc77-dceb-4cfe-af44-fb61f8818ba9",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-13T10:25:09.166Z"
+    },
+    {
+      "id": "a0615186-66c9-4c89-b2cc-dd1550574aa6",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-13T10:25:09.864Z"
+    },
+    {
+      "id": "b3825399-3ed6-47bb-95f4-51b8798ac47b",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-13T10:25:10.156Z"
     }
   ],
   "goals": [
@@ -465,11 +500,11 @@
       "id": "aecf716a-aa89-416c-975a-733ddf936694",
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
       "calories": 2716,
-      "protein": 160,
-      "carbs": 424,
-      "fat": 72,
-      "kcal": 2984,
-      "updatedAt": "2025-10-07T10:44:09.584Z"
+      "protein": 100,
+      "carbs": 319,
+      "fat": 45,
+      "kcal": 2080,
+      "updatedAt": "2025-10-13T10:25:14.573Z"
     },
     {
       "id": "5a61c51e-2446-40d3-8266-0bd04e494596",
@@ -510,11 +545,11 @@
       "sex": "male",
       "age": 26,
       "heightCm": 181,
-      "weightKg": 80,
+      "weightKg": 50,
       "bodyFat": 10,
       "activity": "moderate",
       "goal": "maintain",
-      "updatedAt": "2025-10-07T10:44:09.583Z"
+      "updatedAt": "2025-10-13T10:25:14.570Z"
     },
     {
       "userId": "5a61c51e-2446-40d3-8266-0bd04e494596",
@@ -933,6 +968,13 @@
       "date": "2025-10-07T10:44:09.576Z",
       "weightKg": 80,
       "createdAt": "2025-10-07T10:44:09.577Z"
+    },
+    {
+      "id": "b66fe434-3217-401b-9a20-6615b33d09f6",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "date": "2025-10-13T10:25:14.562Z",
+      "weightKg": 50,
+      "createdAt": "2025-10-13T10:25:14.563Z"
     }
   ]
 }
