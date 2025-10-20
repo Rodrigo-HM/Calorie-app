@@ -4,9 +4,9 @@
     "private": true,
     "type": "commonjs",
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
-        "build": "tsc",
-        "start": "node dist/server.js",
+        "dev": "tsx entry_point/server.ts",
+        "build": "tsc -p tsconfig.json",
+        "start": "node dist/entry_point/server.js",
         "test": "vitest",
         "test:watch": "vitest --watch",
         "coverage": "vitest run --coverage"
@@ -14,6 +14,7 @@
     "dependencies": {
         "bcryptjs": "^3.0.2",
         "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
         "express": "^4.21.2",
         "helmet": "^7.2.0",
         "jsonwebtoken": "^9.0.2",
