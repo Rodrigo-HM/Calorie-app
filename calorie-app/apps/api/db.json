@@ -493,6 +493,20 @@
       "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
       "grams": 100,
       "date": "2025-10-13T10:25:10.156Z"
+    },
+    {
+      "id": "35998c63-158e-44ff-b573-b80b9abb5092",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
+      "grams": 100,
+      "date": "2025-10-21T06:10:20.054Z"
+    },
+    {
+      "id": "133f0e6c-9adb-4052-a956-3d19af6366df",
+      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
+      "foodId": "32c35694-61a4-4f6c-bbba-b5b4e197709f",
+      "grams": 100,
+      "date": "2025-10-21T06:10:21.049Z"
     }
   ],
   "goals": [
