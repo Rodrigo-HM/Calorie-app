@@ -1,6 +1,7 @@
-import { UserRepository } from "../repositories/user.repository";
-import { PasswordHasher } from "./crypto/password-hasher";
-import { TokenService } from "../module/shared/infrastructure/token/token-service";
+import { TokenService } from "src/module/shared/infrastructure/token/token.types";
+import { PasswordHasher } from "../crypto/psaswor-hasher";
+import { UserRepository } from "../repository/user.repository";
+import type { StringValue } from 'ms';
 
 
 // Servicio de autenticación que maneja el registro y login de usuarios 
@@ -9,7 +10,7 @@ export class AuthService {
     private readonly users: UserRepository, 
     private readonly hasher: PasswordHasher,
     private readonly tokens: TokenService,
-    private readonly jwtExpiresIn: string | number
+    private readonly jwtExpiresIn: StringValue | number
   ) {}
 
   async register(email: string, password: string) {

@@ -1,19 +1,41 @@
 import { v4 as uuid } from 'uuid';
+import { JwtTokenService } from '../token/jwt-token.service';
+import { config } from '../config/config';
+import { AuthService } from 'src/module/auth/services/auth.service';
+import { BcryptHasher } from 'src/module/auth/crypto/bcrypt-hasher';
+import type { StringValue } from 'ms';
 
 import { EntriesRepository } from '../../../entries/infrastructure/repository/EntriesRepository';
 import { GoalsRepository } from '../../../goals/infrastructure/repository/GoalsRepository';
 import { ProfileRepository } from '../../../profile/infrastructure/repository/ProfileRepository';
 import { WeightLogsRepository } from '../../../weightLogs/infrastructure/repository/WeightLogsRepository';
 import { FoodsReadRepository } from '../../../foods/infrastructure/repository/FoodsReadRepository';
+import { UserRepositoryLowdb } from 'src/module/auth/infrastructure/repository/UserRepositoryLowdb';
 
 import { FoodsController } from '../../../foods/infrastructure/http/express/FoodsController';
 import { EntriesController } from '../../../entries/infrastructure/http/express/EntriesController';
 import { GoalsController } from '../../../goals/infrastructure/http/express/GoalsController';
 import { ProfileController } from '../../../profile/infrastructure/http/express/ProfileController';
 import { WeightLogsController } from '../../../weightLogs/infrastructure/http/express/WeightLogsController';
+import { AuthController } from '../../../auth/infrastructure/http/express/AuthController';
+
 
 
 export const container = {
+
+  authModule() {
+    const users = new UserRepositoryLowdb();
+    const hasher = new BcryptHasher(10);
+    const tokens = new JwtTokenService();
+    
+    const exp = config.jwtExpiresIn as unknown as StringValue | number; // '2h' encaja con StringValue
+
+    const authSvc = new AuthService(users, hasher, tokens,exp);
+    const authController = new AuthController(authSvc);
+
+    return { authController };
+  },
+
   foodsModule() {
     const foodsRepo = new FoodsReadRepository();
     const foodsController = new FoodsController({
