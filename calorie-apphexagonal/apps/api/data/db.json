@@ -495,7 +495,6 @@
       "date": "2025-10-13T10:25:10.156Z"
     },
     {
-<<<<<<< HEAD:calorie-app/apps/api/data/db.json
       "id": "f40b957c-66e5-4781-a171-c6bcb5891b7d",
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
       "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
@@ -516,43 +515,17 @@
       "grams": 100,
       "date": "2025-10-20T07:44:25.034Z"
     },
-    {
-      "id": "15ca946d-a5dd-469a-8c5e-20470ac5be07",
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
-      "grams": 105,
-      "date": "2025-10-20T08:04:39.087Z"
-=======
-      "id": "35998c63-158e-44ff-b573-b80b9abb5092",
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "foodId": "aa072b8c-f8cd-4c30-a279-be76ea92c84f",
-      "grams": 105,
-      "date": "2025-10-21T06:10:20.054Z"
-    },
+    
     {
       "id": "133f0e6c-9adb-4052-a956-3d19af6366df",
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
       "foodId": "32c35694-61a4-4f6c-bbba-b5b4e197709f",
       "grams": 100,
       "date": "2025-10-21T06:10:21.049Z"
->>>>>>> 116a5de5a7659022deab27a44135001ed357fa55:calorie-app/apps/api/db.json
     }
   ],
   "goals": [
-    {
-      "id": "aecf716a-aa89-416c-975a-733ddf936694",
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "calories": 2716,
-      "protein": 160,
-      "carbs": 424,
-      "fat": 72,
-      "kcal": 2984,
-<<<<<<< HEAD:calorie-app/apps/api/data/db.json
-      "updatedAt": "2025-10-20T06:50:43.693Z"
-=======
-      "updatedAt": "2025-10-21T06:35:57.635Z"
->>>>>>> 116a5de5a7659022deab27a44135001ed357fa55:calorie-app/apps/api/db.json
-    },
+   
     {
       "id": "5a61c51e-2446-40d3-8266-0bd04e494596",
       "userId": "5a61c51e-2446-40d3-8266-0bd04e494596",
@@ -587,21 +560,7 @@
     }
   ],
   "profiles": [
-    {
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "sex": "male",
-      "age": 26,
-      "heightCm": 181,
-      "weightKg": 80,
-      "bodyFat": 10,
-      "activity": "moderate",
-      "goal": "maintain",
-<<<<<<< HEAD:calorie-app/apps/api/data/db.json
-      "updatedAt": "2025-10-20T06:50:43.692Z"
-=======
-      "updatedAt": "2025-10-21T06:35:57.633Z"
->>>>>>> 116a5de5a7659022deab27a44135001ed357fa55:calorie-app/apps/api/db.json
-    },
+   
     {
       "userId": "5a61c51e-2446-40d3-8266-0bd04e494596",
       "sex": "female",
@@ -1026,21 +985,6 @@
       "date": "2025-10-13T10:25:14.562Z",
       "weightKg": 50,
       "createdAt": "2025-10-13T10:25:14.563Z"
-    },
-    {
-<<<<<<< HEAD:calorie-app/apps/api/data/db.json
-      "id": "f19e7d6a-28ca-4a80-8a99-43aa8e8076c2",
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "date": "2025-10-20T06:50:43.687Z",
-      "weightKg": 80,
-      "createdAt": "2025-10-20T06:50:43.687Z"
-=======
-      "id": "f5b5d8cc-b6ab-4505-bedd-7903f9e7e0b9",
-      "userId": "aecf716a-aa89-416c-975a-733ddf936694",
-      "date": "2025-10-21T06:35:51.159Z",
-      "weightKg": 80,
-      "createdAt": "2025-10-21T06:35:51.160Z"
->>>>>>> 116a5de5a7659022deab27a44135001ed357fa55:calorie-app/apps/api/db.json
     }
   ]
 }
