@@ -1,39 +1,52 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+
+
+import { buildWeightLogsRoutes } from '../../../../weightLogs/infrastructure/http/express/routes';
+import { buildAuthMiddlewareInstance } from '../../di/authMiddleware';
+import { buildProfileRoutes } from '../../../../profile/infrastructure/http/express/routes';
+import { buildAuthRoutes } from '../../../../auth/infrastructure/http/express/routes';
+import { buildEntriesRoutes } from '../../../../entries/infrastructure/http/express/routes';
+import { buildGoalsRoutes } from '../../../../goals/infrastructure/http/express/routes';
+import { buildFoodsRoutes } from '../../../../foods/infrastructure/http/express/routes';
 import { errorMiddleware } from './errorMiddleware';
-import { buildAuthRoutes } from 'src/module/auth/infrastructure/http/express/routes';
-import { buildFoodsRoutes } from 'src/module/foods/infrastructure/http/express/routes';
-import { buildGoalsRoutes } from 'src/module/goals/infrastructure/http/express/routes';
-import { buildEntriesRoutes } from 'src/module/entries/infrastructure/http/express/routes';
-import { buildProfileRoutes } from 'src/module/profile/infrastructure/http/express/routes';
-import { buildWeightLogsRoutes } from 'src/module/weightLogs/infrastructure/http/express/routes';
+
+
 
 export function buildApp() {
   const app = express();
 
-  // Logging de requests
-  app.use((req, res, next) => {
-    console.log('[REQ]', req.method, req.path);
-    next();
-  });
-
-  app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
+  // Middleware global
+  app.use(cors({ origin: true, credentials: true }));
   app.use(bodyParser.json());
 
+  // Endpoint de health check
   app.get('/health', (req, res) => res.json({ ok: true }));
 
-  // Rutas con prefijo /api
+  // Rutas públicas
   app.use('/api', buildAuthRoutes());
   app.use('/api', buildFoodsRoutes());
-  app.use('/api', buildGoalsRoutes());
-  app.use('/api', buildEntriesRoutes());
-  app.use('/api', buildProfileRoutes());      
-  app.use('/api', buildWeightLogsRoutes()); 
 
-  // 404
+  // Rutas protegidas (si activas auth)
+  const auth = buildAuthMiddlewareInstance?.();
+  if (auth) {
+    app.use('/api', auth, buildEntriesRoutes());
+    app.use('/api', auth, buildGoalsRoutes());
+    app.use('/api', auth, buildProfileRoutes());
+    app.use('/api', auth, buildWeightLogsRoutes());
+  } else {
+    // Si no tienes auth aún, monta directas
+    app.use('/api', buildEntriesRoutes());
+    app.use('/api', buildGoalsRoutes());
+    app.use('/api', buildProfileRoutes());
+    app.use('/api', buildWeightLogsRoutes());
+  }
+
+   // Ruta 404 para endpoints no encontrados
   app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path }));
 
+  // Middleware de manejo de errores — siempre al final
   app.use(errorMiddleware);
 
   return app;

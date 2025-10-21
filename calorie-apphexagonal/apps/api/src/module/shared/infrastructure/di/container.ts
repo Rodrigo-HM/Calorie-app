@@ -19,18 +19,14 @@ import { ProfileController } from '../../../profile/infrastructure/http/express/
 import { WeightLogsController } from '../../../weightLogs/infrastructure/http/express/WeightLogsController';
 import { AuthController } from '../../../auth/infrastructure/http/express/AuthController';
 
-
-
 export const container = {
-
   authModule() {
     const users = new UserRepositoryLowdb();
     const hasher = new BcryptHasher(10);
     const tokens = new JwtTokenService();
-    
-    const exp = config.jwtExpiresIn as unknown as StringValue | number; // '2h' encaja con StringValue
+    const exp = config.jwtExpiresIn as unknown as StringValue | number;
 
-    const authSvc = new AuthService(users, hasher, tokens,exp);
+    const authSvc = new AuthService(users, hasher, tokens, exp);
     const authController = new AuthController(authSvc);
 
     return { authController };
@@ -50,10 +46,8 @@ export const container = {
     const goalsRepo = new GoalsRepository();
     const goalsController = new GoalsController({
       get: (userId: string) => goalsRepo.get(userId),
-      set: (
-        userId: string,
-        data: { kcal: number; protein: number; carbs: number; fat: number }
-      ) => goalsRepo.set(userId, data),
+      set: (userId: string, data: { kcal: number; protein: number; carbs: number; fat: number }) =>
+        goalsRepo.set(userId, data),
     });
 
     return { goalsController };
@@ -68,9 +62,7 @@ export const container = {
         get: (userId: string) => profileRepo.get(userId),
         update: (userId: string, patch: any) => profileRepo.update(userId, patch),
       },
-      {
-        get: (userId: string) => goalsRepo.get(userId),
-      }
+      goalsRepo // <- ahora pasamos la instancia (tiene get y set)
     );
 
     return { profileController };
@@ -81,17 +73,11 @@ export const container = {
     const foodsRepo = new FoodsReadRepository();
 
     const addEntry = {
-      run: async (p: {
-        userId: string;
-        foodId: string;
-        grams: number;
-        date?: string;
-      }) => {
+      run: async (p: { userId: string; foodId: string; grams: number; date?: string }) => {
         const food = await foodsRepo.getById(p.foodId);
         if (!food) throw new Error('FOOD_NOT_FOUND');
 
         const now = new Date().toISOString();
-
         const entry = {
           id: uuid(),
           userId: p.userId,
@@ -100,7 +86,6 @@ export const container = {
           date: p.date ? new Date(p.date).toISOString() : now,
           createdAt: now,
         };
-
         await entriesRepo.save(entry);
         return entry;
       },
@@ -108,8 +93,7 @@ export const container = {
 
     const listByDay = {
       run: async (userId: string, dayISO: string) => {
-        const items = await entriesRepo.findByDay(userId, dayISO);
-        return items;
+        return await entriesRepo.findByDay(userId, dayISO);
       },
     };
 
@@ -129,19 +113,12 @@ export const container = {
       },
     };
 
-    const entriesController = new EntriesController(
-      addEntry,
-      listByDay,
-      updateGrams,
-      removeEntry
-    );
-
+    const entriesController = new EntriesController(addEntry, listByDay, updateGrams, removeEntry);
     return { entriesController };
   },
 
   weightLogsModule() {
     const logsRepo = new WeightLogsRepository();
-
     const weightLogsController = new WeightLogsController({
       listByUser: (userId: string, r?: { from?: string; to?: string }) =>
         logsRepo.listByUser(userId, r),

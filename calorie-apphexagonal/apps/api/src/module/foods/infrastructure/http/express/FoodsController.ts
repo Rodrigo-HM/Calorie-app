@@ -1,21 +1,40 @@
+import { Request, Response, NextFunction } from 'express';
+
+type Food = {
+  id: string;
+  name: string;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
 export class FoodsController {
   constructor(
-    private readonly foodsRepo: {
-      listAll: () => Promise<any[]>;
-      getById: (id: string) => Promise<any | null>;
+    private readonly deps: {
+      listAll: () => Promise<Food[]>;
+      getById: (id: string) => Promise<Food | null>;
     }
   ) {}
 
-  // GET /api/foods
-  list = async (req: any, res: any) => {
-    const data = await this.foodsRepo.listAll();
-    return res.json(data);
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const q = String(req.query.search ?? '').trim().toLowerCase();
+      const items = await this.deps.listAll();
+      const filtered = q ? items.filter((f) => f.name.toLowerCase().includes(q)) : items;
+      return res.json(filtered);
+    } catch (e) {
+      return next(e);
+    }
   };
 
-  // GET /api/foods/:id
-  getById = async (req: any, res: any) => {
-    const it = await this.foodsRepo.getById(req.params.id);
-    if (!it) return res.status(404).json({ error: 'Not found' });
-    return res.json(it);
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const item = await this.deps.getById(req.params.id);
+      if (!item) return res.status(404).json({ error: 'Not found' });
+      return res.json(item);
+    } catch (e) {
+      return next(e);
+    }
   };
 }

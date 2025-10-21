@@ -12,7 +12,7 @@ export function errorMiddleware(
       error: 'Validación',
       details: err.issues.map((i: any) => ({
         path: i.path?.join('.') ?? '',
-        message: i.message
+        message: i.message,
       })),
     });
   }
@@ -23,7 +23,21 @@ export function errorMiddleware(
     return res.status(status).json({ error: err.message });
   }
 
-  // Fallback
+  // Mapeo por code (Auth y otros)
+  // Permite que servicios hagan: throw Object.assign(new Error('...'), { code: '...' })
+  if (typeof err?.code === 'string') {
+    const code = err.code as string;
+    const codeStatus: Record<string, number> = {
+      INVALID_CREDENTIALS: 401,
+      EMAIL_TAKEN: 409,
+      NOT_FOUND: 404,
+      FOOD_NOT_FOUND: 400,
+    };
+    const status = codeStatus[code] ?? 400;
+    return res.status(status).json({ error: code });
+  }
+
+  // Fallback para errores no controlados
   // eslint-disable-next-line no-console
   console.error('[UNHANDLED]', err);
   return res.status(500).json({ error: 'Internal Server Error' });
