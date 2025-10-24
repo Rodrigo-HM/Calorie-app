@@ -236,7 +236,7 @@
       "id": "7dfec709-63f0-4aba-93fc-cafd27182452",
       "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
       "foodId": "33817f30-6b66-43d7-a377-1d6aeb48789b",
-      "grams": 100,
+      "grams": 110,
       "date": "2025-10-24T08:01:48.391Z",
       "createdAt": "2025-10-24T08:01:48.391Z"
     },
@@ -268,11 +268,11 @@
     },
     {
       "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
-      "kcal": 3137,
-      "protein": 136,
-      "carbs": 502,
-      "fat": 65,
-      "updatedAt": "2025-10-24T08:01:54.002Z"
+      "kcal": 3106,
+      "protein": 134,
+      "carbs": 499,
+      "fat": 64,
+      "updatedAt": "2025-10-24T08:02:39.565Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -463,11 +463,11 @@
       "sex": "M",
       "age": 20,
       "heightCm": 180,
-      "weightKg": 81,
+      "weightKg": 80,
       "bodyFat": 16,
       "activity": "moderate",
       "goal": "bulk",
-      "updatedAt": "2025-10-24T08:01:54.002Z"
+      "updatedAt": "2025-10-24T08:02:39.563Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -628,6 +628,11 @@
       "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
       "dateISO": "2025-10-24T08:01:53.995Z",
       "weightKg": 81
+    },
+    {
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-10-24T08:02:39.557Z",
+      "weightKg": 80
     }
   ]
 }
