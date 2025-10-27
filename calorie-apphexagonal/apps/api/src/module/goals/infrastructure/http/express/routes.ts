@@ -9,8 +9,7 @@ export function buildGoalsRoutes() {
   r.get('/users/me/goals', goalsController.get);
   r.put('/users/me/goals', goalsController.set);
 
-  // Ping opcional
-  r.get('/ping-goals', (req, res) => res.json({ ok: true }));
+
 
   return r;
 }

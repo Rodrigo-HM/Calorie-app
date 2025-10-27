@@ -1,32 +1,39 @@
+import { ListEntriesByDay } from "src/module/entries/aplication/list/ListEntriesByDay";
 import type { EntriesRepository } from "../../../src/module/entries/aplication/ports/EntriesRepository";
+import type { FoodsReadRepository } from "../../../src/module/foods/aplication/ports/FoodsReadRepository";
 
-function makeRepoWithSpy(returned: any[]) {
-  const calls: Array<[string, string]> = [];
-  const repo: EntriesRepository = {
-    async save(_entry: any): Promise<void> {},
-    async findByDay(userId: string, dayISO: string): Promise<any[]> {
-      calls.push([userId, dayISO]);
-      return returned;
+function makeEntriesRepo(initial: any[] = []): EntriesRepository {
+  const data = [...initial];
+  return {
+    async save(_e: any) {},
+    async findByDay(userId: string, dayISO: string) {
+      return data.filter(e => e.userId === userId && e.date.startsWith(dayISO));
     },
-    async updateGramsForUser(_id: string, _userId: string, _grams: number): Promise<any | null> { return null; },
-    async deleteByIdForUser(_id: string, _userId: string): Promise<any | null> { return null; },
+    async updateGramsForUser() { return null; },
+    async deleteByIdForUser() { return null; },
   };
-  return { repo, calls };
 }
 
-describe("Entries.findByDay", () => {
-  it("delegates a repo.findByDay y devuelve su resultado", async () => {
-    const expected = [
-      { id: "e1", userId: "u1", foodId: "food1", grams: 100, date: "2025-10-20T08:00:00.000Z" },
-      { id: "e2", userId: "u1", foodId: "food2", grams: 200, date: "2025-10-20T13:00:00.000Z" },
-    ];
-    const { repo, calls } = makeRepoWithSpy(expected);
+function makeFoodsRepo(foods: any[]): FoodsReadRepository {
+  return {
+    async listAll() { return foods; },
+    async getById(id: string) { return foods.find(f => f.id === id) ?? null; },
+  };
+}
 
-    // si tienes tu caso de uso real: const out = await listByDay.run("u1","2025-10-20");
-    const list = async (userId: string, dayISO: string) => repo.findByDay(userId, dayISO);
-    const out = await list("u1", "2025-10-20");
+describe("Entries.findByDay shape { items, totals }", () => {
+  it("delegates a repos y retorna { items, totals }", async () => {
+    const entriesRepo = makeEntriesRepo([
+      { id: "e1", userId: "u1", foodId: "a", grams: 100, date: "2025-10-20T08:00:00.000Z" },
+    ]);
+    const foodsRepo = makeFoodsRepo([
+      { id: "a", name: "X", kcal: 100, protein: 10, carbs: 10, fat: 5 },
+    ]);
 
-    expect(calls).toEqual([["u1", "2025-10-20"]]);
-    expect(out).toEqual(expected);
+    const useCase = new ListEntriesByDay(entriesRepo, foodsRepo);
+    const out = await useCase.run("u1", "2025-10-20");
+
+    expect(out.items.map(x => x.id)).toEqual(["e1"]);
+    expect(out.totals.kcal).toBe(100);
   });
 });

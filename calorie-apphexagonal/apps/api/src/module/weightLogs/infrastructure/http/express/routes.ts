@@ -9,8 +9,5 @@ export function buildWeightLogsRoutes() {
   r.get('/users/me/weight-logs', weightLogsController.list);
   r.post('/users/me/weight-logs', weightLogsController.create);
 
-  // Ping opcional
-  r.get('/ping-weight-logs', (req, res) => res.json({ ok: true }));
-
   return r;
 }

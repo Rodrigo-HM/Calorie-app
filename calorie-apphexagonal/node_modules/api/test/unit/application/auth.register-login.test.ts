@@ -1,99 +1,54 @@
-// UPDATE IMPORT: AuthService real y puertos UsersRepository, Hasher, TokenService
-// import { AuthService } from "../../../src/module/auth/application/AuthService";
+import { AuthService } from "../../../src/module/auth/services/auth.service";
+import { makeUsersRepo } from "../../fakes/users";
+import { fakeHasher } from "../../fakes/crypto";
+import { fakeTokenService } from "../../fakes/token";
 
-type User = { id: string; email: string; passwordHash: string };
-type UsersRepo = {
-  findByEmail(email: string): Promise<User | null>;
-  create(email: string, passwordHash: string): Promise<User>;
-};
-type Hasher = { hash(s: string): Promise<string>; compare(s: string, h: string): Promise<boolean> };
-type TokenService = { sign(payload: any): string };
-
-function makeUsersRepo(): UsersRepo {
-  const data: User[] = [];
-  return {
-    findByEmail: async (email) => data.find((u) => u.email === email) ?? null,
-    create: async (email, passwordHash) => {
-      const u = { id: `u_${Date.now()}`, email, passwordHash };
-      data.push(u);
-      return u;
-    },
-  };
-}
-
-const fakeHasher: Hasher = {
-  hash: async (s) => `hash:${s}`,
-  compare: async (s, h) => h === `hash:${s}`,
-};
-const fakeToken: TokenService = {
-  sign: (payload) => `token:${payload.id}`,
-};
-
-describe("Auth register/login", () => {
+describe("AuthService register/login (application)", () => {
   it("register dup email → EMAIL_TAKEN", async () => {
     const users = makeUsersRepo();
+    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
 
-    const register = async (email: string, password: string) => {
-      const exists = await users.findByEmail(email);
-      if (exists) {
-        const err: any = new Error("EMAIL_TAKEN");
-        err.code = "EMAIL_TAKEN";
-        throw err;
-      }
-      const hash = await fakeHasher.hash(password);
-      const user = await users.create(email, hash);
-      return { id: user.id };
-    };
+    await auth.register("a@test.dev", "Secret123!");
 
-    await register("a@test.dev", "Secret123!");
-    await expect(register("a@test.dev", "Secret123!")).rejects.toMatchObject({ code: "EMAIL_TAKEN" });
+    await expect(auth.register("a@test.dev", "Secret123!")).rejects.toMatchObject({
+      code: "EMAIL_TAKEN",
+    });
   });
 
-  it("login credenciales inválidas → INVALID_CREDENTIALS", async () => {
+  it("login credenciales inválidas → INVALID_CREDENTIALS (email no existe)", async () => {
     const users = makeUsersRepo();
+    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
 
-    const login = async (email: string, password: string) => {
-      const u = await users.findByEmail(email);
-      if (!u) {
-        const err: any = new Error("INVALID_CREDENTIALS");
-        err.code = "INVALID_CREDENTIALS";
-        throw err;
-      }
-      const ok = await fakeHasher.compare(password, u.passwordHash);
-      if (!ok) {
-        const err: any = new Error("INVALID_CREDENTIALS");
-        err.code = "INVALID_CREDENTIALS";
-        throw err;
-      }
-      return { token: fakeToken.sign({ id: u.id }) };
-    };
-
-    await expect(login("x@test.dev", "x")).rejects.toMatchObject({ code: "INVALID_CREDENTIALS" });
+    await expect(auth.login("x@test.dev", "x")).rejects.toMatchObject({
+      code: "INVALID_CREDENTIALS",
+    });
   });
 
-  it("login happy path", async () => {
+  it("login credenciales inválidas → INVALID_CREDENTIALS (password incorrecto)", async () => {
     const users = makeUsersRepo();
-    // register
-    const hash = await fakeHasher.hash("Secret123!");
-    const user = await users.create("b@test.dev", hash);
+    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
 
-    const login = async (email: string, password: string) => {
-      const u = await users.findByEmail(email);
-      if (!u) {
-        const err: any = new Error("INVALID_CREDENTIALS");
-        err.code = "INVALID_CREDENTIALS";
-        throw err;
-      }
-      const ok = await fakeHasher.compare(password, u.passwordHash);
-      if (!ok) {
-        const err: any = new Error("INVALID_CREDENTIALS");
-        err.code = "INVALID_CREDENTIALS";
-        throw err;
-      }
-      return { token: fakeToken.sign({ id: u.id }) };
-    };
+    // Registro previo
+    await auth.register("b@test.dev", "Correcta!");
 
-    const out = await login("b@test.dev", "Secret123!");
+    await expect(auth.login("b@test.dev", "Incorrecta")).rejects.toMatchObject({
+      code: "INVALID_CREDENTIALS",
+    });
+  });
+
+  it("login happy path devuelve { token, user: { id, email } }", async () => {
+    const users = makeUsersRepo();
+    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
+
+    // Registro
+    const reg = await auth.register("c@test.dev", "Secret123!");
+    expect(reg.id).toBeDefined();
+    expect(reg.email).toBe("c@test.dev");
+
+    // Login
+    const out = await auth.login("c@test.dev", "Secret123!");
     expect(out.token.startsWith("token:")).toBe(true);
+    expect(out.user.id).toBeDefined();
+    expect(out.user.email).toBe("c@test.dev");
   });
 });

@@ -19,6 +19,9 @@ import { ProfileController } from '../../../profile/infrastructure/http/express/
 import { WeightLogsController } from '../../../weightLogs/infrastructure/http/express/WeightLogsController';
 import { AuthController } from '../../../auth/infrastructure/http/express/AuthController';
 
+import { GoalsService } from "../../../goals/aplication/GoalsService";
+
+
 export const container = {
   authModule() {
     const users = new UserRepositoryLowdb();
@@ -42,13 +45,10 @@ export const container = {
     return { foodsController };
   },
 
-  goalsModule() {
-    const goalsRepo = new GoalsRepository();
-    const goalsController = new GoalsController({
-      get: (userId: string) => goalsRepo.get(userId),
-      set: (userId: string, data: { kcal: number; protein: number; carbs: number; fat: number }) =>
-        goalsRepo.set(userId, data),
-    });
+    goalsModule() {
+    const repo = new GoalsRepository();
+    const service = new GoalsService(repo);
+    const goalsController = new GoalsController(service);
 
     return { goalsController };
   },

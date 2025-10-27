@@ -1,4 +1,5 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { GoalsService } from "../../../aplication/GoalsService";
 
 const schema = z.object({
   calories: z.number().nonnegative().optional(),
@@ -9,31 +10,22 @@ const schema = z.object({
 });
 
 export class GoalsController {
-  constructor(
-    private readonly goalsRepo: {
-      get: (userId: string) => Promise<any | null>;
-      set: (userId: string, g: { kcal: number; protein: number; carbs: number; fat: number }) => Promise<any>;
-    }
-  ) {}
+  constructor(private readonly goals: GoalsService) {}
 
-  // GET /api/users/me/goals
   get = async (req: any, res: any) => {
-    const userId = req.user?.id ?? 'u1';
-    const g = await this.goalsRepo.get(userId);
+    const userId = req.user?.id ?? "u1";
+    const g = await this.goals.get(userId);
     return res.json(g ? { ...g, calories: g.kcal } : null);
   };
 
-  // PUT /api/users/me/goals
-  set = async (req: any, res: any) => {
-    const userId = req.user?.id ?? 'u1';
-    const b = schema.parse(req.body);
-    const normalized = {
-      kcal: b.kcal ?? b.calories ?? 0,
-      protein: b.protein ?? 0,
-      carbs: b.carbs ?? 0,
-      fat: b.fat ?? 0,
-    };
-    const saved = await this.goalsRepo.set(userId, normalized);
-    return res.json({ ...saved, calories: saved.kcal });
+  set = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.user?.id ?? "u1";
+      const body = schema.parse(req.body);
+      const saved = await this.goals.set(userId, body);
+      return res.json({ ...saved, calories: saved.kcal });
+    } catch (e) {
+      return next(e);
+    }
   };
 }
