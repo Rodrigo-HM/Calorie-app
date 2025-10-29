@@ -1,18 +1,9 @@
-export function presentProfileAndGoals(
-  profile: any,
-  goals: {
-    kcal: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  }
-) {
+import type { GoalsDTO } from "../../../goals/infrastructure/http/presenters";
+import { presentGoals } from "../../../goals/infrastructure/http/presenters";
+
+export function presentProfileAndGoals(profile: any, goals: GoalsDTO) {
   return {
     profile,
-    goals: {
-      ...goals,
-      // 🔁 Alias más legible para la vista o la API
-      calories: goals.kcal,
-    },
+    goals: presentGoals(goals),
   };
 }

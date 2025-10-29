@@ -1,7 +1,9 @@
+import type { Request, Response } from "express";
 import { z } from "zod";
 import { presentProfileAndGoals } from "../presenters";
+import { parse } from "src/module/shared/infrastructure/http/parse";
 
-// ✅ Esquema de validación con Zod
+// Esquema de validación del PATCH de perfil (todos los campos opcionales)
 const ProfilePatchSchema = z
   .object({
     name: z.string().min(1).optional(),
@@ -20,37 +22,40 @@ const ProfilePatchSchema = z
 export class ProfileController {
   constructor(
     private readonly updateProfile: {
-      run(userId: string, patch: any): Promise<any>;
+      run(userId: string, patch: unknown): Promise<any>;
     },
     private readonly recalcGoals: {
-      run(userId: string, profile: any): Promise<any>;
+      run(
+        userId: string,
+        profile: any
+      ): Promise<{ kcal: number; protein: number; carbs: number; fat: number }>;
     },
     private readonly profileRepo: {
       get(userId: string): Promise<any | null>;
     }
   ) {}
 
-  // 🔹 GET /api/users/me/profile
-  get = async (req: any, res: any) => {
+  // GET /api/users/me/profile
+  get = async (req: Request, res: Response) => {
     const userId = (req as any).user?.id ?? "u1";
     const profile = await this.profileRepo.get(userId);
     return res.json(profile ?? null);
   };
 
-  // 🔹 PUT /api/users/me/profile
-  update = async (req: any, res: any) => {
+  // PUT /api/users/me/profile
+  update = async (req: Request, res: Response) => {
     const userId = (req as any).user?.id ?? "u1";
 
-    // 🧾 Validar el cuerpo del request
-    const patch = ProfilePatchSchema.parse(req.body ?? {});
+    // 1) Validación en el borde HTTP
+    const patch = parse(ProfilePatchSchema, req.body ?? {});
 
-    // 🧠 Caso de uso 1: Actualizar perfil
+    // 2) Caso de uso: actualizar perfil
     const profile = await this.updateProfile.run(userId, patch);
 
-    // ⚙️ Caso de uso 2: Recalcular y guardar objetivos
+    // 3) Caso de uso: recalcular y guardar objetivos
     const goals = await this.recalcGoals.run(userId, profile);
 
-    // 🎨 Presentar el resultado (Profile + Goals formateados)
+    // 4) Presentación: alias calories en goals
     return res.json(presentProfileAndGoals(profile, goals));
   };
 }

@@ -1,29 +1,51 @@
+import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { GoalsService } from "../../../aplication/GoalsService";
+import { presentGoals } from "../presenters";
+import { parse } from "src/module/shared/infrastructure/http/parse";
 
-const schema = z.object({
-  calories: z.number().nonnegative().optional(),
-  kcal: z.number().nonnegative().optional(),
-  protein: z.number().nonnegative().optional(),
-  carbs: z.number().nonnegative().optional(),
-  fat: z.number().nonnegative().optional(),
+// Esquema HTTP: aceptamos tanto "kcal" como "calories" y macros opcionales
+const GoalsBodySchema = z.object({
+  kcal: z.number().int().nonnegative().optional(),
+  calories: z.number().int().nonnegative().optional(),
+  protein: z.number().int().nonnegative().optional(),
+  carbs: z.number().int().nonnegative().optional(),
+  fat: z.number().int().nonnegative().optional(),
 });
 
 export class GoalsController {
   constructor(private readonly goals: GoalsService) {}
 
-  get = async (req: any, res: any) => {
-    const userId = req.user?.id ?? "u1";
+  // GET /api/users/me/goals
+  get = async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id ?? "u1";
     const g = await this.goals.get(userId);
-    return res.json(g ? { ...g, calories: g.kcal } : null);
+
+    // Presenter: añade alias "calories"
+    return res.json(presentGoals(g));
   };
 
-  set = async (req: any, res: any, next: any) => {
+  // PUT /api/users/me/goals
+  set = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?.id ?? "u1";
-      const body = schema.parse(req.body);
-      const saved = await this.goals.set(userId, body);
-      return res.json({ ...saved, calories: saved.kcal });
+      const userId = (req as any).user?.id ?? "u1";
+
+      // Validación en el borde HTTP
+      const body = parse(GoalsBodySchema, req.body ?? {});
+
+      // Normalización: priorizamos kcal; si no viene, usamos calories
+      const normalized = {
+        kcal: body.kcal ?? body.calories ?? 0,
+        protein: body.protein ?? 0,
+        carbs: body.carbs ?? 0,
+        fat: body.fat ?? 0,
+      };
+
+      // Reglas de negocio en el servicio
+      const saved = await this.goals.set(userId, normalized);
+
+      // Presenter para compatibilidad (alias)
+      return res.json(presentGoals(saved));
     } catch (e) {
       return next(e);
     }

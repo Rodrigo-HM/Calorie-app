@@ -1,53 +1,52 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-
-
-import { buildWeightLogsRoutes } from '../../../../weightLogs/infrastructure/http/express/routes';
-import { buildAuthMiddlewareInstance } from '../../di/authMiddleware';
-import { buildProfileRoutes } from '../../../../profile/infrastructure/http/express/routes';
-import { buildAuthRoutes } from '../../../../auth/infrastructure/http/express/routes';
-import { buildEntriesRoutes } from '../../../../entries/infrastructure/http/express/routes';
-import { buildGoalsRoutes } from '../../../../goals/infrastructure/http/express/routes';
-import { buildFoodsRoutes } from '../../../../foods/infrastructure/http/express/routes';
-import { errorMiddleware } from './errorMiddleware';
-
-
+import express from "express";
+import { buildFoodsRoutes } from "../../../../foods/infrastructure/http/express/routes";
+import { buildAuthRoutes } from "../../../../auth/infrastructure/http/express/routes";
+import { buildEntriesRoutes } from "../../../../entries/infrastructure/http/express/routes";
+import { buildGoalsRoutes } from "../../../../goals/infrastructure/http/express/routes";
+import { buildProfileRoutes } from "../../../../profile/infrastructure/http/express/routes";
+import { buildWeightLogsRoutes } from "../../../../weightLogs/infrastructure/http/express/routes";
+import { buildAuthMiddlewareInstance } from "../../di/authMiddleware";
+import {
+  buildCorsAndJson,
+  mountHealth,
+  mountPublicRoutes,
+  mountProtectedRoutes,
+  mountNotFound,
+  mountError,
+} from "../bootstrap";
 
 export function buildApp() {
   const app = express();
 
-  // Middleware global
-  app.use(cors({ origin: true, credentials: true }));
-  app.use(bodyParser.json());
+  // 1. Middlewares globales
+  buildCorsAndJson(app);
+  mountHealth(app);
 
-  // Endpoint de health check
-  app.get('/health', (req, res) => res.json({ ok: true }));
+  // 2. Rutas públicas
+  const publicRouter = express.Router();
+  publicRouter.use(buildAuthRoutes());
+  publicRouter.use(buildFoodsRoutes());
+  mountPublicRoutes(app, publicRouter);
 
-  // Rutas públicas
-  app.use('/api', buildAuthRoutes());
-  app.use('/api', buildFoodsRoutes());
+  // 3. Rutas protegidas
+  const protectedRouter = express.Router();
+  protectedRouter.use(buildEntriesRoutes());
+  protectedRouter.use(buildGoalsRoutes());
+  protectedRouter.use(buildProfileRoutes());
+  protectedRouter.use(buildWeightLogsRoutes());
 
-  // Rutas protegidas (si activas auth)
+  // 4. Autenticación (modo con o sin auth)
   const auth = buildAuthMiddlewareInstance?.();
   if (auth) {
-    app.use('/api', auth, buildEntriesRoutes());
-    app.use('/api', auth, buildGoalsRoutes());
-    app.use('/api', auth, buildProfileRoutes());
-    app.use('/api', auth, buildWeightLogsRoutes());
+    mountProtectedRoutes(app, auth, protectedRouter);
   } else {
-    // Si no tienes auth aún, monta directas
-    app.use('/api', buildEntriesRoutes());
-    app.use('/api', buildGoalsRoutes());
-    app.use('/api', buildProfileRoutes());
-    app.use('/api', buildWeightLogsRoutes());
+    // Modo desarrollo sin autenticación
+    app.use("/api", protectedRouter);
   }
 
-   // Ruta 404 para endpoints no encontrados
-  app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path }));
-
-  // Middleware de manejo de errores — siempre al final
-  app.use(errorMiddleware);
+  // 5. Manejo de rutas no encontradas y errores
+  mountNotFound(app);
+  mountError(app);
 
   return app;
 }
