@@ -22,7 +22,7 @@ function makeFoodsRepo(foods: any[]): FoodsReadRepository {
 }
 
 describe("Entries.findByDay shape { items, totals }", () => {
-  it("delegates a repos y retorna { items, totals }", async () => {
+  it("retorna { items, totals }", async () => {
     const entriesRepo = makeEntriesRepo([
       { id: "e1", userId: "u1", foodId: "a", grams: 100, date: "2025-10-20T08:00:00.000Z" },
     ]);

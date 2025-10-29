@@ -19,7 +19,5 @@ export function makeUsersRepo(): UserRepository {
       return u;
     },
 
-    // Si algún test necesita inspeccionar el estado:
-    // __peek: () => data
   } as UserRepository;
 }
