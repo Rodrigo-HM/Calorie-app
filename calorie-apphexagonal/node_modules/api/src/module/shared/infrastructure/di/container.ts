@@ -7,8 +7,8 @@ import type { StringValue } from 'ms';
 
 import { EntriesRepository } from '../../../entries/infrastructure/repository/EntriesRepository';
 import { GoalsRepository } from '../../../goals/infrastructure/repository/GoalsRepository';
-import { ProfileRepository } from '../../../profile/infrastructure/repository/ProfileRepository';
-import { WeightLogsRepository } from '../../../weightLogs/infrastructure/repository/WeightLogsRepository';
+import { ProfileRepository as ProfileInfraRepo } from '../../../profile/infrastructure/repository/ProfileRepository';
+import { WeightLogsRepository as WeightLogsInfraRepo } from "../../../weightLogs/infrastructure/repository/WeightLogsRepository";
 import { FoodsReadRepository } from '../../../foods/infrastructure/repository/FoodsReadRepository';
 import { UserRepositoryLowdb } from 'src/module/auth/infrastructure/repository/UserRepositoryLowdb';
 
@@ -20,6 +20,10 @@ import { WeightLogsController } from '../../../weightLogs/infrastructure/http/ex
 import { AuthController } from '../../../auth/infrastructure/http/express/AuthController';
 
 import { GoalsService } from "../../../goals/aplication/GoalsService";
+import { UpdateProfile } from 'src/module/profile/aplication/UpdateProfile';
+import { RecalculateAndSaveGoals } from 'src/module/profile/aplication/RecalculateAndSaveGoals';
+import { ListWeightLogs } from 'src/module/weightLogs/aplication/ListWeightLogs';
+import { CreateWeightLog } from 'src/module/weightLogs/aplication/CreateWeightLog';
 
 
 export const container = {
@@ -53,18 +57,23 @@ export const container = {
     return { goalsController };
   },
 
-  profileModule() {
-    const profileRepo = new ProfileRepository();
+   profileModule() {
+    // 🔹 Capa de infraestructura → acceso a datos (DB, archivos, API, etc.)
+    const profileRepo = new ProfileInfraRepo();
     const goalsRepo = new GoalsRepository();
 
+    // 🔹 Capa de aplicación → casos de uso
+    const updateProfile = new UpdateProfile(profileRepo);
+    const recalcGoals = new RecalculateAndSaveGoals(goalsRepo);
+
+    // 🔹 Capa de interfaz → controlador HTTP que orquesta todo
     const profileController = new ProfileController(
-      {
-        get: (userId: string) => profileRepo.get(userId),
-        update: (userId: string, patch: any) => profileRepo.update(userId, patch),
-      },
-      goalsRepo // <- ahora pasamos la instancia (tiene get y set)
+      updateProfile,
+      recalcGoals,
+      profileRepo
     );
 
+    // ✅ Exportamos solo lo necesario
     return { profileController };
   },
 
@@ -117,13 +126,11 @@ export const container = {
     return { entriesController };
   },
 
-  weightLogsModule() {
-    const logsRepo = new WeightLogsRepository();
-    const weightLogsController = new WeightLogsController({
-      listByUser: (userId: string, r?: { from?: string; to?: string }) =>
-        logsRepo.listByUser(userId, r),
-      create: (userId: string, log: any) => logsRepo.create(userId, log),
-    });
+   weightLogsModule() {
+    const repo = new WeightLogsInfraRepo();
+    const listLogs = new ListWeightLogs(repo);
+    const createLog = new CreateWeightLog(repo);
+    const weightLogsController = new WeightLogsController(listLogs, createLog);
 
     return { weightLogsController };
   },
