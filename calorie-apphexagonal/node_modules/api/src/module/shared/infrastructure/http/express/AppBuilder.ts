@@ -46,11 +46,10 @@ export function buildApp() {
   protectedRouter.use(buildWeightLogsRoutes());
 
   // 4. Autenticación (modo con o sin auth)
-  const auth = buildAuthMiddlewareInstance?.();
+  const auth = process.env.AUTH_DISABLED === "true" ? undefined : buildAuthMiddlewareInstance?.();
   if (auth) {
     mountProtectedRoutes(app, auth, protectedRouter);
   } else {
-    // Modo desarrollo sin autenticación
     app.use("/api", protectedRouter);
   }
 
