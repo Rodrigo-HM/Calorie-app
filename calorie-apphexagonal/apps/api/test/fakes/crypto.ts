@@ -1,4 +1,4 @@
-import type { PasswordHasher } from "../../src/module/auth/crypto/psaswor-hasher";
+import type { PasswordHasher } from "../../src/module/auth/infrastructure/crypto/psaswor-hasher";
 
 export const fakeHasher: PasswordHasher = {
   async hash(plain: string) {

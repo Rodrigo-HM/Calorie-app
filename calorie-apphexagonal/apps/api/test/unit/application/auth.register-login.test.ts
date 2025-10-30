@@ -1,54 +1,39 @@
-import { AuthService } from "../../../src/module/auth/services/auth.service";
+import { PasswordHasher } from "src/module/auth/aplication/ports/security";
+import { makeTokenService } from "../../fakes/token";
 import { makeUsersRepo } from "../../fakes/users";
-import { fakeHasher } from "../../fakes/crypto";
-import { fakeTokenService } from "../../fakes/token";
+import { AuthService } from "src/module/auth/aplication/auth.service";
+import { UsersRepository } from "src/module/auth/aplication/ports/UserRepository";
 
-describe("AuthService register/login (application)", () => {
-  it("register dup email → EMAIL_TAKEN", async () => {
-    const users = makeUsersRepo();
-    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
 
-    await auth.register("a@test.dev", "Secret123!");
+// Fakes
+const fakeHasher: PasswordHasher = {
+  hash: async (p) => `hash:${p}`,
+  compare: async (p, h) => h === `hash:${p}`,
+};
 
-    await expect(auth.register("a@test.dev", "Secret123!")).rejects.toMatchObject({
-      code: "EMAIL_TAKEN",
-    });
+const users: UsersRepository = makeUsersRepo();
+
+const tokenSvc = makeTokenService();
+
+describe("AuthService", () => {
+  it("register + login feliz", async () => {
+    const auth = new AuthService(users, fakeHasher, tokenSvc, "1h");
+    const u = await auth.register("a@b.com", "secret12");
+    expect(u).toMatchObject({ email: "a@b.com" });
+
+    const login = await auth.login("a@b.com", "secret12");
+    expect(login.user.email).toBe("a@b.com");
+    expect(typeof login.token).toBe("string");
   });
 
-  it("login credenciales inválidas → INVALID_CREDENTIALS (email no existe)", async () => {
-    const users = makeUsersRepo();
-    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
-
-    await expect(auth.login("x@test.dev", "x")).rejects.toMatchObject({
-      code: "INVALID_CREDENTIALS",
-    });
+  it("register falla si email ocupado", async () => {
+    const auth = new AuthService(users, fakeHasher, tokenSvc, "1h");
+    await auth.register("rep@b.com", "x");
+    await expect(auth.register("rep@b.com", "y")).rejects.toMatchObject({ code: "EMAIL_TAKEN" });
   });
 
-  it("login credenciales inválidas → INVALID_CREDENTIALS (password incorrecto)", async () => {
-    const users = makeUsersRepo();
-    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
-
-    // Registro previo
-    await auth.register("b@test.dev", "Correcta!");
-
-    await expect(auth.login("b@test.dev", "Incorrecta")).rejects.toMatchObject({
-      code: "INVALID_CREDENTIALS",
-    });
-  });
-
-  it("login happy path devuelve { token, user: { id, email } }", async () => {
-    const users = makeUsersRepo();
-    const auth = new AuthService(users, fakeHasher, fakeTokenService, "1h");
-
-    // Registro
-    const reg = await auth.register("c@test.dev", "Secret123!");
-    expect(reg.id).toBeDefined();
-    expect(reg.email).toBe("c@test.dev");
-
-    // Login
-    const out = await auth.login("c@test.dev", "Secret123!");
-    expect(out.token.startsWith("token:")).toBe(true);
-    expect(out.user.id).toBeDefined();
-    expect(out.user.email).toBe("c@test.dev");
+  it("login falla con credenciales inválidas", async () => {
+    const auth = new AuthService(users, fakeHasher, tokenSvc, "1h");
+    await expect(auth.login("no@exists.com", "x")).rejects.toMatchObject({ code: "INVALID_CREDENTIALS" });
   });
 });

@@ -1,8 +1,8 @@
 // src/module/shared/infrastructure/di/container.ts
 import { JwtTokenService } from "../token/jwt-token.service";
 import { config } from "../config/config";
-import { AuthService } from "src/module/auth/services/auth.service";
-import { BcryptHasher } from "src/module/auth/crypto/bcrypt-hasher";
+import { AuthService } from "src/module/auth/aplication/auth.service";
+import { BcryptHasher } from "src/module/auth/infrastructure/crypto/bcrypt-hasher";
 import type { StringValue } from "ms";
 
 // Repos infra
@@ -12,7 +12,7 @@ import { GoalsRepositoryLowdb } from "../../../goals/infrastructure/repository/G
 import { ProfileRepositoryLowdb } from "../../../profile/infrastructure/repository/ProfileRepositoryLowdb";
 import { WeightLogsRepositoryLowdb } from "../../../weightLogs/infrastructure/repository/WeightLogsRepositoryLowdb";
 import { FoodsReadRepository } from "../../../foods/infrastructure/repository/FoodsReadRepository";
-import { UserRepositoryLowdb } from "src/module/auth/infrastructure/repository/UserRepositoryLowdb";
+import { UsersRepositoryLowdb } from "src/module/auth/infrastructure/repository/UserRepositoryLowdb";
 
 // Controllers
 import { FoodsController } from "../../../foods/infrastructure/http/express/FoodsController";
@@ -37,16 +37,15 @@ import { RemoveEntry } from "../../../entries/aplication/use-cases/RemoveEntry";
 
 export const container = {
   authModule() {
-    const users = new UserRepositoryLowdb();
-    const hasher = new BcryptHasher(10);
-    const tokens = new JwtTokenService();
-    const exp = config.jwtExpiresIn as unknown as StringValue | number;
+  const users = new UsersRepositoryLowdb();
+  const hasher = new BcryptHasher(10);
+  const tokens = new JwtTokenService(); // usa config.jwtSecret por defecto
+  const exp = config.jwtExpiresIn as unknown as StringValue | number;
 
-    const authSvc = new AuthService(users, hasher, tokens, exp);
-    const authController = new AuthController(authSvc);
-
-    return { authController };
-  },
+  const authSvc = new AuthService(users, hasher, tokens, exp);
+  const authController = new AuthController(authSvc);
+  return { authController };
+},
 
   foodsModule() {
     // Módulo Foods independiente (si lo mantienes): OK

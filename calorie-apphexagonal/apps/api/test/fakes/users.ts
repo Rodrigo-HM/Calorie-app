@@ -1,23 +1,29 @@
-import type { UserRepository, User } from "../../src/module/auth/repository/user.repository";
+import type { UsersRepository, User } from "src/module/auth/aplication/ports/UserRepository";
 
-export function makeUsersRepo(): UserRepository {
-  const data: User[] = [];
+export function makeUsersRepo(seed: User[] = []): UsersRepository {
+  // Índices por email e id para consultas rápidas y consistentes en tests
+  const byEmail = new Map<string, User>(seed.map(u => [u.email, u]));
+  const byId = new Map<string, User>(seed.map(u => [u.id, u]));
+  let seq = seed.length; // contador simple para ids deterministas en tests
 
   return {
-    async getByEmail(email: string) {
-      return data.find((u) => u.email === email) ?? null;
+    async findByEmail(email: string): Promise<User | null> {
+      return byEmail.get(email) ?? null;
     },
 
-    async create(email: string, passwordHash: string) {
-      const u: User = {
-        id: `u_${Math.random().toString(36).slice(2, 10)}`,
-        email,
-        passwordHash,
+    async create(data: { email: string; passwordHash: string }): Promise<User> {
+      const existing = byEmail.get(data.email);
+      if (existing) return existing; // opcional: o lanza si tu servicio lo exige
+
+      const user: User = {
+        id: `u_${++seq}`,
+        email: data.email,
+        passwordHash: data.passwordHash,
         createdAt: new Date().toISOString(),
       };
-      data.push(u);
-      return u;
+      byEmail.set(user.email, user);
+      byId.set(user.id, user);
+      return user;
     },
-
-  } as UserRepository;
+  };
 }

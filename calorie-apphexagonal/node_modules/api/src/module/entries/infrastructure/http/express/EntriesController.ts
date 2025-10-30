@@ -11,7 +11,13 @@ import { presentEntry, presentEntriesWithTotals } from "../presenters";
 const AddSchema = z.object({
   foodId: z.string().min(1),
   grams: z.number().positive(),
-  date: z.string().datetime().optional(),
+  // Permitir YYYY-MM-DD o ISO datetime
+  date: z
+    .union([
+      z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // día puro
+      z.string().datetime(),                   // ISO con zona
+    ])
+    .optional(),
 });
 
 const ListSchema = z.object({

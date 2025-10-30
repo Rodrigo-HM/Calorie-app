@@ -1,7 +1,14 @@
-import type { TokenService } from "../../src/module/shared/infrastructure/token/token.types";
+import type { TokenService } from "../../src/module/auth/aplication/ports/security";
 
-export const fakeTokenService: TokenService = {
-  async sign(payload: any, _opts?: any) {
-    return `token:${payload.sub ?? payload.id ?? "unknown"}`;
-  },
-};
+export function makeTokenService(): TokenService {
+  return {
+    sign(payload: Record<string, unknown>): string {
+      // Fake simple y determinista para tests
+      return `fake.${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
+    },
+    verify<T = any>(_token: string): T {
+      // Para unit de AuthService no verificamos nada; devolver dummy
+      return {} as T;
+    },
+  };
+}

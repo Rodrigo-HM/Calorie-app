@@ -1,39 +1,31 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import { TokenService, TokenVerifier } from './token.types';
-import { config } from '../config/config';
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
+import type { StringValue } from "ms";
+import type { TokenService } from "src/module/auth/aplication/ports/security";
+import { config } from "../config/config";
 
-/**
- * Servicio JWT que implementa TokenService y TokenVerifier.
- * Permite firmar y verificar tokens usando un secret configurable.
- */
-export class JwtTokenService implements TokenService, TokenVerifier {
-  private readonly secret: string;
+export class JwtTokenService implements TokenService {
+  private readonly secret: Secret;
 
-  constructor(secret = config.jwtSecret) {
-    if (!secret) {
-      throw new Error('JWT secret no definido');
+  constructor(secret?: string) {
+    // Aseguramos que la secret sea string (no null/undefined)
+    const s = secret ?? config.jwtSecret;
+    if (!s || typeof s !== "string") {
+      throw new Error("JWT secret must be a non-empty string");
     }
-    this.secret = secret;
+    this.secret = s as Secret;
   }
 
-  /**
-   * Firma un payload y devuelve un JWT.
-   * @param payload Datos a firmar
-   * @param options Opciones de jsonwebtoken
-   */
-  sign(payload: object, options?: SignOptions): Promise<string> {
-    return new Promise((resolve, reject) => {
-      jwt.sign(payload as any, this.secret, options ?? {}, (err, token) => {
-        if (err || !token) return reject(err ?? new Error('SIGN_ERROR'));
-        resolve(token);
-      });
-    });
+  sign(
+    payload: Record<string, unknown>,
+    opts?: { expiresIn?: StringValue | number }
+  ): string {
+    const options: SignOptions = {};
+    if (opts?.expiresIn !== undefined) {
+      options.expiresIn = opts.expiresIn; // <- StringValue | number
+    }
+    return jwt.sign(payload, this.secret, options);
   }
 
-  /**
-   * Verifica un token JWT y devuelve el payload tipado.
-   * @throws Error si el token es inválido o expirado
-   */
   verify<T = any>(token: string): T {
     return jwt.verify(token, this.secret) as T;
   }
