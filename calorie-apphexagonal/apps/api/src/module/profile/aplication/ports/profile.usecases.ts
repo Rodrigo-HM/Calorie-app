@@ -1,18 +1,11 @@
-import { Profile } from "./ProfileRepository";
+import type { Profile, ProfilePatch } from "./ProfileRepository";
+import type { Goals } from "src/module/goals/aplication/ports/GoalsRepository";
 
 export interface IUpdateProfile {
-  run(userId: string, patch: unknown): Promise<Profile>;
-  // si ya tienes tipos Profile/ProfilePatch, úsalos aquí
+  run(userId: string, patch: ProfilePatch): Promise<Profile>;
 }
 
+// Caso de uso: recalcular y guardar metas, retorna Goals
 export interface IRecalculateAndSaveGoals {
-  run(
-    userId: string,
-    profile: any
-  ): Promise<{
-    kcal: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  }>;
+  run(userId: string, profile: Profile): Promise<Goals>;
 }
