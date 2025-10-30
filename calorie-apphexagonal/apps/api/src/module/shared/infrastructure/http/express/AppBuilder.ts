@@ -14,8 +14,18 @@ import {
   mountNotFound,
   mountError,
 } from "../bootstrap";
+import {
+  initDb,
+  seedFoodsIfEmpty,
+  migrateEntriesDateToDateISO,
+} from "../../db/database";
 
 export function buildApp() {
+  // 0. Inicializa DB y ejecuta migraciones idempotentes
+  initDb();
+  seedFoodsIfEmpty();
+  migrateEntriesDateToDateISO();
+  
   const app = express();
 
   // 1. Middlewares globales

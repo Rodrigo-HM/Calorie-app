@@ -66,6 +66,23 @@ db.data!.foods.push(...base.map(f => ({ id: uuidv4(), createdAt: now, ...f })));
 db.write();
 }
 
+// Migra entries legacy: si no tienen dateISO pero sí date, copia date → dateISO
+export function migrateEntriesDateToDateISO() {
+  db.read();
+  const arr = (db.data?.entries as any[] | undefined) ?? [];
+  let changed = false;
+
+  for (const e of arr) {
+    // Si no hay dateISO pero hay date (string con al menos YYYY-MM-DD), migramos
+    if (!e.dateISO && typeof e.date === "string" && e.date.length >= 10) {
+      e.dateISO = e.date;
+      changed = true;
+    }
+  }
+
+  if (changed) db.write();
+}
+
 export function save() {
 db.write();
 }

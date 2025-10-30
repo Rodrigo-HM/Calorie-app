@@ -6,7 +6,10 @@ export type Goals = {
   fat: number;
 };
 
+// Entrada sin userId (lo pone el repo usando el argumento userId)
+export type GoalsInput = Omit<Goals, "userId">;
+
 export interface GoalsRepository {
   get(userId: string): Promise<Goals | null>;
-  set(userId: string, g: Omit<Goals, 'userId'>): Promise<Goals>;
+  set(userId: string, g: GoalsInput): Promise<Goals>;
 }

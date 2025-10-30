@@ -1,11 +1,12 @@
 import { db } from "../../../shared/infrastructure/db/database";
 import { v4 as uuid } from "uuid";
 import type {
+  WeightLogsRepository as WeightLogsRepositoryPort,
   NewWeightLog,
   StoredWeightLog,
-} from "../../aplication/ports/WeightLogsRepository";
+} from "../../../weightLogs/aplication/ports/WeightLogsRepository";
 
-export class WeightLogsRepository {
+export class WeightLogsRepositoryLowdb implements WeightLogsRepositoryPort {
   async listByUser(
     userId: string,
     range?: { from?: string; to?: string }
@@ -16,7 +17,6 @@ export class WeightLogsRepository {
         (l) => l.userId === userId
       ) ?? [];
 
-    // Filtrado por fecha desde
     if (range?.from) {
       const fromStart = range.from.includes("T")
         ? range.from
@@ -24,7 +24,6 @@ export class WeightLogsRepository {
       items = items.filter((l) => l.dateISO >= fromStart);
     }
 
-    // Filtrado por fecha hasta
     if (range?.to) {
       const toEnd = range.to.includes("T")
         ? range.to
@@ -51,7 +50,6 @@ export class WeightLogsRepository {
 
     arr.push(item);
     db.write();
-
     return item;
   }
 }

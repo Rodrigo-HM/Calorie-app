@@ -1,32 +1,42 @@
-import { UpdateEntryGrams } from "src/module/entries/aplication/update/UpdateEntryGrams";
-import type { EntriesRepository } from "src/module/entries/aplication/ports/EntriesRepository";
+import { UpdateEntryGrams } from "src/module/entries/aplication/use-cases/UpdateEntryGrams";
+import type { EntriesRepository, Entry } from "src/module/entries/aplication/ports/EntriesRepository";
 
-function makeEntriesRepo(initial: Array<{ id: string; userId: string; grams: number }> = []): EntriesRepository {
-  const data = [...initial];
+function makeEntriesRepoWith(seed: Array<Partial<Entry> & { id: string; userId: string }>): EntriesRepository {
+  const store: Entry[] = seed.map(s => ({
+    id: s.id,
+    userId: s.userId,
+    foodId: s.foodId ?? "f1",
+    grams: s.grams ?? 100,
+    dateISO: s.dateISO ?? "2025-01-01T00:00:00.000Z",
+    createdAt: s.createdAt ?? "now",
+  }));
+
   return {
-    async save(_e: any) {},
-    async findByDay(_u: string, _d: string) { return []; },
-    async updateGramsForUser(id: string, userId: string, grams: number) {
-      const it = data.find(e => e.id === id && e.userId === userId);
-      if (!it) return null;
-      it.grams = grams;
-      return it as any;
+    async findByDay() { return store; },
+    async create(userId, data) {
+      const item: Entry = { id: "e_new", userId, ...data, createdAt: "now" };
+      store.push(item); return item;
     },
-    async deleteByIdForUser(_id: string, _userId: string) { return null; },
+    async updateGramsForUser(id, userId, grams) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
+      if (i === -1) return null;                 // clave: respeta userId
+      store[i] = { ...store[i], grams }; return store[i];
+    },
+    async deleteByIdForUser() { return null; },
   };
 }
 
 describe("Entries.update grams (application)", () => {
-  it("actualiza gramos si la entry pertenece al usuario", async () => {
-    const repo = makeEntriesRepo([{ id: "e1", userId: "u1", grams: 100 }]);
-    const useCase = new UpdateEntryGrams(repo);
-    const out = await useCase.run("u1", "e1", 150);
-    expect(out.grams).toBe(150);
+  it("actualiza si pertenece al usuario", async () => {
+    const repo = makeEntriesRepoWith([{ id: "e1", userId: "u1", grams: 100 }]);
+    const uc = new UpdateEntryGrams(repo);
+    const out = await uc.run("u1", "e1", 200);
+    expect(out.grams).toBe(200);
   });
 
   it("lanza NOT_FOUND si no pertenece al usuario", async () => {
-    const repo = makeEntriesRepo([{ id: "e1", userId: "u1", grams: 100 }]);
-    const useCase = new UpdateEntryGrams(repo);
-    await expect(useCase.run("u2", "e1", 200)).rejects.toMatchObject({ name: "DomainError" });
+    const repo = makeEntriesRepoWith([{ id: "e1", userId: "u1", grams: 100 }]);
+    const uc = new UpdateEntryGrams(repo);
+    await expect(uc.run("u2", "e1", 200)).rejects.toMatchObject({ name: "DomainError", message: "NOT_FOUND" });
   });
 });

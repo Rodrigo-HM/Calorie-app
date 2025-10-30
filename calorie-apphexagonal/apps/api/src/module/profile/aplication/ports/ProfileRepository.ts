@@ -2,7 +2,12 @@ export type Profile = {
   userId: string;
   name?: string;
   age?: number;
-  sex?: 'M' | 'F' | 'O';
+  sex?: "M" | "F" | "O";
+  heightCm?: number;
+  weightKg?: number;
+  bodyFat?: number;
+  activity?: "sedentary" | "light" | "moderate" | "active" | "veryActive";
+  goal?: "cut" | "maintain" | "bulk";
 };
 
 export interface ProfileRepository {

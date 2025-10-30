@@ -1,4 +1,12 @@
 import { RecalculateAndSaveGoals } from "src/module/profile/aplication/RecalculateAndSaveGoals";
+import type { Profile } from "src/module/profile/aplication/ports/ProfileRepository";
+
+
+// Solo los campos que usa el cálculo (sin userId)
+type ProfileForGoals = Pick<
+  Profile,
+  "sex" | "age" | "heightCm" | "weightKg" | "bodyFat" | "activity" | "goal"
+>;
 
 function makeGoalsRepoSpy() {
   const calls: any[] = [];
@@ -17,7 +25,7 @@ describe("RecalculateAndSaveGoals", () => {
     const goalsRepo = makeGoalsRepoSpy();
     const uc = new RecalculateAndSaveGoals(goalsRepo as any);
 
-    const profile = {
+    const profile: ProfileForGoals = {
       sex: "M",
       age: 30,
       heightCm: 180,

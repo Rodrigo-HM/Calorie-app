@@ -1,30 +1,39 @@
-import { v4 as uuid } from 'uuid';
-import { JwtTokenService } from '../token/jwt-token.service';
-import { config } from '../config/config';
-import { AuthService } from 'src/module/auth/services/auth.service';
-import { BcryptHasher } from 'src/module/auth/crypto/bcrypt-hasher';
-import type { StringValue } from 'ms';
+// src/module/shared/infrastructure/di/container.ts
+import { JwtTokenService } from "../token/jwt-token.service";
+import { config } from "../config/config";
+import { AuthService } from "src/module/auth/services/auth.service";
+import { BcryptHasher } from "src/module/auth/crypto/bcrypt-hasher";
+import type { StringValue } from "ms";
 
-import { EntriesRepository } from '../../../entries/infrastructure/repository/EntriesRepository';
-import { GoalsRepository } from '../../../goals/infrastructure/repository/GoalsRepository';
-import { ProfileRepository as ProfileInfraRepo } from '../../../profile/infrastructure/repository/ProfileRepository';
-import { WeightLogsRepository as WeightLogsInfraRepo } from "../../../weightLogs/infrastructure/repository/WeightLogsRepository";
-import { FoodsReadRepository } from '../../../foods/infrastructure/repository/FoodsReadRepository';
-import { UserRepositoryLowdb } from 'src/module/auth/infrastructure/repository/UserRepositoryLowdb';
+// Repos infra
+import { EntriesRepositoryLowdb } from "../../../entries/infrastructure/repository/EntriesRepositoryLowdb";
+import { FoodsReadRepositoryLowdb } from "../../../entries/infrastructure/repository/FoodsReadRepositoryLowdb";
+import { GoalsRepositoryLowdb } from "../../../goals/infrastructure/repository/GoalsRepositoryLowdb";
+import { ProfileRepositoryLowdb } from "../../../profile/infrastructure/repository/ProfileRepositoryLowdb";
+import { WeightLogsRepositoryLowdb } from "../../../weightLogs/infrastructure/repository/WeightLogsRepositoryLowdb";
+import { FoodsReadRepository } from "../../../foods/infrastructure/repository/FoodsReadRepository";
+import { UserRepositoryLowdb } from "src/module/auth/infrastructure/repository/UserRepositoryLowdb";
 
-import { FoodsController } from '../../../foods/infrastructure/http/express/FoodsController';
-import { EntriesController } from '../../../entries/infrastructure/http/express/EntriesController';
-import { GoalsController } from '../../../goals/infrastructure/http/express/GoalsController';
-import { ProfileController } from '../../../profile/infrastructure/http/express/ProfileController';
-import { WeightLogsController } from '../../../weightLogs/infrastructure/http/express/WeightLogsController';
-import { AuthController } from '../../../auth/infrastructure/http/express/AuthController';
+// Controllers
+import { FoodsController } from "../../../foods/infrastructure/http/express/FoodsController";
+import { EntriesController } from "../../../entries/infrastructure/http/express/EntriesController";
+import { GoalsController } from "../../../goals/infrastructure/http/express/GoalsController";
+import { ProfileController } from "../../../profile/infrastructure/http/express/ProfileController";
+import { WeightLogsController } from "../../../weightLogs/infrastructure/http/express/WeightLogsController";
+import { AuthController } from "../../../auth/infrastructure/http/express/AuthController";
 
+// Application (services/use-cases)
 import { GoalsService } from "../../../goals/aplication/GoalsService";
-import { UpdateProfile } from 'src/module/profile/aplication/UpdateProfile';
-import { RecalculateAndSaveGoals } from 'src/module/profile/aplication/RecalculateAndSaveGoals';
-import { ListWeightLogs } from 'src/module/weightLogs/aplication/ListWeightLogs';
-import { CreateWeightLog } from 'src/module/weightLogs/aplication/CreateWeightLog';
+import { UpdateProfile } from "src/module/profile/aplication/UpdateProfile";
+import { RecalculateAndSaveGoals } from "src/module/profile/aplication/RecalculateAndSaveGoals";
+import { ListWeightLogs } from "src/module/weightLogs/aplication/ListWeightLogs";
+import { CreateWeightLog } from "src/module/weightLogs/aplication/CreateWeightLog";
 
+// Entries use-cases
+import { CreateEntry } from "../../../entries/aplication/use-cases/CreateEntry";
+import { ListEntriesByDay } from "../../../entries/aplication/use-cases/ListEntriesByDay";
+import { UpdateEntryGrams } from "../../../entries/aplication/use-cases/UpdateEntryGrams";
+import { RemoveEntry } from "../../../entries/aplication/use-cases/RemoveEntry";
 
 export const container = {
   authModule() {
@@ -40,6 +49,7 @@ export const container = {
   },
 
   foodsModule() {
+    // Módulo Foods independiente (si lo mantienes): OK
     const foodsRepo = new FoodsReadRepository();
     const foodsController = new FoodsController({
       listAll: () => foodsRepo.listAll(),
@@ -49,85 +59,56 @@ export const container = {
     return { foodsController };
   },
 
-    goalsModule() {
-    const repo = new GoalsRepository();
-    const service = new GoalsService(repo);
+  goalsModule() {
+    const goalsRepo = new GoalsRepositoryLowdb();
+    const service = new GoalsService(goalsRepo);
     const goalsController = new GoalsController(service);
 
     return { goalsController };
   },
 
-   profileModule() {
-    // 🔹 Capa de infraestructura → acceso a datos (DB, archivos, API, etc.)
-    const profileRepo = new ProfileInfraRepo();
-    const goalsRepo = new GoalsRepository();
+  profileModule() {
+    // Infra
+    const profileRepo = new ProfileRepositoryLowdb();
+    const goalsRepo = new GoalsRepositoryLowdb();
 
-    // 🔹 Capa de aplicación → casos de uso
+    // Application
     const updateProfile = new UpdateProfile(profileRepo);
     const recalcGoals = new RecalculateAndSaveGoals(goalsRepo);
 
-    // 🔹 Capa de interfaz → controlador HTTP que orquesta todo
+    // Controller
     const profileController = new ProfileController(
       updateProfile,
       recalcGoals,
       profileRepo
     );
 
-    // ✅ Exportamos solo lo necesario
     return { profileController };
   },
 
   entriesModule() {
-    const entriesRepo = new EntriesRepository();
-    const foodsRepo = new FoodsReadRepository();
+    // Infra
+    const entriesRepo = new EntriesRepositoryLowdb();
+    const foodsRepo = new FoodsReadRepositoryLowdb();
 
-    const addEntry = {
-      run: async (p: { userId: string; foodId: string; grams: number; date?: string }) => {
-        const food = await foodsRepo.getById(p.foodId);
-        if (!food) throw new Error('FOOD_NOT_FOUND');
+    // Application (use-cases)
+    const createEntry = new CreateEntry(entriesRepo, foodsRepo);
+    const listByDay = new ListEntriesByDay(entriesRepo, foodsRepo);
+    const updateGrams = new UpdateEntryGrams(entriesRepo);
+    const removeEntry = new RemoveEntry(entriesRepo);
 
-        const now = new Date().toISOString();
-        const entry = {
-          id: uuid(),
-          userId: p.userId,
-          foodId: p.foodId,
-          grams: p.grams,
-          date: p.date ? new Date(p.date).toISOString() : now,
-          createdAt: now,
-        };
-        await entriesRepo.save(entry);
-        return entry;
-      },
-    };
-
-    const listByDay = {
-      run: async (userId: string, dayISO: string) => {
-        return await entriesRepo.findByDay(userId, dayISO);
-      },
-    };
-
-    const updateGrams = {
-      run: async (userId: string, id: string, grams: number) => {
-        const updated = await entriesRepo.updateGramsForUser(id, userId, grams);
-        if (!updated) throw new Error('NOT_FOUND');
-        return updated;
-      },
-    };
-
-    const removeEntry = {
-      run: async (userId: string, id: string) => {
-        const removed = await entriesRepo.deleteByIdForUser(id, userId);
-        if (!removed) throw new Error('NOT_FOUND');
-        return { ok: true };
-      },
-    };
-
-    const entriesController = new EntriesController(addEntry, listByDay, updateGrams, removeEntry);
+    // Controller
+    const entriesController = new EntriesController(
+      createEntry,
+      listByDay,
+      updateGrams,
+      removeEntry
+    );
     return { entriesController };
   },
 
-   weightLogsModule() {
-    const repo = new WeightLogsInfraRepo();
+  weightLogsModule() {
+    const repo = new WeightLogsRepositoryLowdb();
     const listLogs = new ListWeightLogs(repo);
     const createLog = new CreateWeightLog(repo);
     const weightLogsController = new WeightLogsController(listLogs, createLog);

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { presentProfileAndGoals } from "../presenters";
 import { parse } from "src/module/shared/infrastructure/http/parse";
+import type { Goals } from "src/module/goals/aplication/ports/GoalsRepository";
 
 // Esquema de validación del PATCH de perfil (todos los campos opcionales)
 const ProfilePatchSchema = z
@@ -25,10 +26,8 @@ export class ProfileController {
       run(userId: string, patch: unknown): Promise<any>;
     },
     private readonly recalcGoals: {
-      run(
-        userId: string,
-        profile: any
-      ): Promise<{ kcal: number; protein: number; carbs: number; fat: number }>;
+      // IMPORTANTE: el caso de uso devuelve Goals (incluye userId)
+      run(userId: string, profile: any): Promise<Goals>;
     },
     private readonly profileRepo: {
       get(userId: string): Promise<any | null>;

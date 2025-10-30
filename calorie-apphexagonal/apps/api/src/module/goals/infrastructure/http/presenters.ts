@@ -1,11 +1,9 @@
-export type GoalsDTO = {
-  kcal: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-};
+import type { Goals } from "src/module/goals/aplication/ports/GoalsRepository";
 
-export function presentGoals(goals: GoalsDTO | null) {
+export type GoalsView = Omit<Goals, "userId"> & { calories: number };
+
+export function presentGoals(goals: Goals | null) {
   if (!goals) return null;
-  return { ...goals, calories: goals.kcal };
+  const { userId: _ignore, ...rest } = goals;
+  return { ...rest, calories: goals.kcal } as GoalsView;
 }

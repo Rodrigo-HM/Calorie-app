@@ -1,4 +1,13 @@
+export type Food = {
+  id: string;
+  name: string;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
 export interface FoodsReadRepository {
-  listAll(): Promise<any[]>;
-  getById(id: string): Promise<any | null>;
+  getById(id: string): Promise<Food | null>;
+  listAll(): Promise<Food[]>;
 }

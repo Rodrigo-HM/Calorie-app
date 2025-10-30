@@ -1,29 +1,26 @@
-import { ListEntriesByDay } from "src/module/entries/aplication/list/ListEntriesByDay";
+import { ListEntriesByDay } from "src/module/entries/aplication/use-cases/ListEntriesByDay";
 import type { EntriesRepository } from "../../../src/module/entries/aplication/ports/EntriesRepository";
 import type { FoodsReadRepository } from "../../../src/module/foods/aplication/ports/FoodsReadRepository";
 
-function makeEntriesRepo(initial: any[] = []): EntriesRepository {
-  const data = [...initial];
+function makeEntriesRepoWith(items: any[]): EntriesRepository {
   return {
-    async save(_e: any) {},
-    async findByDay(userId: string, dayISO: string) {
-      return data.filter(e => e.userId === userId && e.date.startsWith(dayISO));
-    },
-    async updateGramsForUser() { return null; },
-    async deleteByIdForUser() { return null; },
+    async findByDay(_userId: string, _dayISO: string) { return items; },
+    async create(userId, data) { return { id: "e1", userId, ...data, createdAt: "now" }; },
+    async updateGramsForUser(id, userId, grams) { return { id, userId, foodId: "f1", grams, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
+    async deleteByIdForUser(id, userId) { return { id, userId, foodId: "f1", grams: 100, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
   };
 }
 
-function makeFoodsRepo(foods: any[]): FoodsReadRepository {
+function makeFoodsRepo(list: any[]): FoodsReadRepository {
   return {
-    async listAll() { return foods; },
-    async getById(id: string) { return foods.find(f => f.id === id) ?? null; },
+    async getById(id: string) { return list.find(x => x.id === id) ?? null; },
+    async listAll() { return list; },
   };
 }
 
 describe("Entries.findByDay shape { items, totals }", () => {
   it("retorna { items, totals }", async () => {
-    const entriesRepo = makeEntriesRepo([
+    const entriesRepo = makeEntriesRepoWith([
       { id: "e1", userId: "u1", foodId: "a", grams: 100, date: "2025-10-20T08:00:00.000Z" },
     ]);
     const foodsRepo = makeFoodsRepo([

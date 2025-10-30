@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { CreateWeightLog } from "../../../aplication/CreateWeightLog";
-import { ListWeightLogs } from "../../../aplication/ListWeightLogs";
+import type { IListWeightLogs, ICreateWeightLog } from "src/module/weightLogs/aplication/ports/weightlogs.usecases";
 
 const listSchema = z.object({
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -15,8 +14,8 @@ const createSchema = z.object({
 
 export class WeightLogsController {
   constructor(
-    private readonly listLogs: ListWeightLogs,
-    private readonly createLog: CreateWeightLog
+    private readonly listLogs: IListWeightLogs,
+    private readonly createLog: ICreateWeightLog
   ) {}
 
   // GET /api/users/me/weight-logs?from&to

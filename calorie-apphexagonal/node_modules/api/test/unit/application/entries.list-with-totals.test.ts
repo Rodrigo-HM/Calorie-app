@@ -1,25 +1,22 @@
-import { ListEntriesByDay } from "src/module/entries/aplication/list/ListEntriesByDay";
+import { ListEntriesByDay } from "src/module/entries/aplication/use-cases/ListEntriesByDay";
 import type { EntriesRepository } from "../../../src/module/entries/aplication/ports/EntriesRepository";
 import type { FoodsReadRepository } from "../../../src/module/foods/aplication/ports/FoodsReadRepository";
 
 const r1 = (n: number) => Number(n.toFixed(1));
 
-function makeEntriesRepo(initial: any[] = []): EntriesRepository {
-  const data = [...initial];
+function makeEntriesRepoWith(items: any[]): EntriesRepository {
   return {
-    async save(_e: any) {},
-    async findByDay(userId: string, dayISO: string) {
-      return data.filter(e => e.userId === userId && e.date.startsWith(dayISO));
-    },
-    async updateGramsForUser() { return null; },
-    async deleteByIdForUser() { return null; },
+    async findByDay(_userId: string, _dayISO: string) { return items; },
+    async create(userId, data) { return { id: "e1", userId, ...data, createdAt: "now" }; },
+    async updateGramsForUser(id, userId, grams) { return { id, userId, foodId: "f1", grams, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
+    async deleteByIdForUser(id, userId) { return { id, userId, foodId: "f1", grams: 100, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
   };
 }
 
-function makeFoodsRepo(foods: any[]): FoodsReadRepository {
+function makeFoodsRepo(list: any[]): FoodsReadRepository {
   return {
-    async listAll() { return foods; },
-    async getById(id: string) { return foods.find(f => f.id === id) ?? null; },
+    async getById(id: string) { return list.find(x => x.id === id) ?? null; },
+    async listAll() { return list; },
   };
 }
 
@@ -31,7 +28,7 @@ describe("Entries.listByDay con totales (application)", () => {
       { id: "rice", name: "Rice", kcal: 130, protein: 2.4, carbs: 28, fat: 0.3 },
     ]);
 
-    const entriesRepo = makeEntriesRepo([
+    const entriesRepo = makeEntriesRepoWith([
       { id: "e1", userId: "u1", foodId: "chicken", grams: 150, date: "2025-10-20T08:00:00.000Z" },
       { id: "e2", userId: "u1", foodId: "rice", grams: 200, date: "2025-10-20T13:00:00.000Z" },
     ]);

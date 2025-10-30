@@ -2,7 +2,7 @@ export type Activity = "sedentary" | "light" | "moderate" | "active" | "veryActi
 export type GoalKind = "cut" | "maintain" | "bulk";
 
 export function calculateGoals(input: {
-  sex: "M" | "F";
+  sex: "M" | "F" | "O"; // acepta también "O"
   age: number;
   heightCm: number;
   weightKg: number;
@@ -16,9 +16,12 @@ export function calculateGoals(input: {
   const hasBf = typeof bodyFat === "number" && bodyFat >= 0 && bodyFat <= 60;
   const lbm = hasBf ? weightKg * (1 - bodyFat / 100) : null;
 
+  // Colapsa "O" a una fórmula definida (aquí tratamos "O" como "M" por defecto)
+  const sexForFormula: "M" | "F" = sex === "F" ? "F" : "M";
+
   const bmr = hasBf
-    ? 370 + 21.6 * (lbm as number) // Katch–McArdle
-    : sex === "M"
+    ? 370 + 21.6 * (lbm as number) // Katch–McArdle (independiente del sexo)
+    : sexForFormula === "M"
     ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5 // Mifflin–St Jeor hombre
     : 10 * weightKg + 6.25 * heightCm - 5 * age - 161; // Mifflin–St Jeor mujer
 
