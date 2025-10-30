@@ -18,6 +18,7 @@ import {
   initDb,
   seedFoodsIfEmpty,
   migrateEntriesDateToDateISO,
+  migrateWeightLogsDateToDateISO,
 } from "../../db/database";
 
 export function buildApp() {
@@ -25,6 +26,7 @@ export function buildApp() {
   initDb();
   seedFoodsIfEmpty();
   migrateEntriesDateToDateISO();
+  migrateWeightLogsDateToDateISO();
   
   const app = express();
 

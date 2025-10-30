@@ -703,7 +703,7 @@
       "protein": 133,
       "carbs": 492,
       "fat": 64,
-      "updatedAt": "2025-10-30T14:50:01.487Z"
+      "updatedAt": "2025-10-30T14:59:00.004Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -763,11 +763,11 @@
     },
     {
       "userId": "u1",
-      "kcal": 2200,
-      "protein": 140,
-      "carbs": 240,
-      "fat": 70,
-      "updatedAt": "2025-10-30T14:52:37.676Z"
+      "kcal": 2759,
+      "protein": 144,
+      "carbs": 402,
+      "fat": 64,
+      "updatedAt": "2025-10-30T14:59:17.622Z"
     }
   ],
   "profiles": [
@@ -954,7 +954,7 @@
       "bodyFat": 17,
       "activity": "moderate",
       "goal": "bulk",
-      "updatedAt": "2025-10-30T14:50:01.485Z"
+      "updatedAt": "2025-10-30T14:59:00.002Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -1040,37 +1040,37 @@
       "weightKg": 80,
       "activity": "moderate",
       "goal": "maintain",
-      "updatedAt": "2025-10-30T14:52:37.597Z"
+      "updatedAt": "2025-10-30T14:59:17.621Z"
     }
   ],
   "weightLogs": [
     {
-      "id": "94630ce3-1a3d-4483-8034-73ffb5647c33",
+      "id": "27c8fd1c-04ed-4b78-b247-11e334cde811",
       "userId": "u1",
       "dateISO": "2025-10-10T00:00:00.000Z",
       "weightKg": 80,
-      "createdAt": "2025-10-30T14:52:37.308Z"
+      "createdAt": "2025-10-30T14:59:17.203Z"
     },
     {
-      "id": "a1fb9544-300e-4478-b68f-3138f54c9bce",
+      "id": "8e7cc720-428e-497e-8ad4-a0672d7a84ae",
       "userId": "u1",
       "dateISO": "2025-10-20T12:00:00.000Z",
       "weightKg": 79,
-      "createdAt": "2025-10-30T14:52:37.309Z"
+      "createdAt": "2025-10-30T14:59:17.204Z"
     },
     {
-      "id": "54c9a43e-36dd-4c4e-821b-907447f9d14e",
+      "id": "c3a657e2-259f-41a4-b86d-3762fa3226d3",
       "userId": "u1",
       "dateISO": "2025-10-30T23:59:59.999Z",
       "weightKg": 78,
-      "createdAt": "2025-10-30T14:52:37.310Z"
+      "createdAt": "2025-10-30T14:59:17.205Z"
     },
     {
-      "id": "a076b022-0f27-48cd-a573-a2d8a8b394a9",
+      "id": "fdec70bb-d9f3-4149-94fd-c6b8831db254",
       "userId": "u1",
       "dateISO": "2025-11-01T00:00:00.000Z",
       "weightKg": 77,
-      "createdAt": "2025-10-30T14:52:37.311Z"
+      "createdAt": "2025-10-30T14:59:17.206Z"
     }
   ]
 }

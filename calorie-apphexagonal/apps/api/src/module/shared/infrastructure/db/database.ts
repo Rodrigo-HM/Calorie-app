@@ -83,6 +83,22 @@ export function migrateEntriesDateToDateISO() {
   if (changed) db.write();
 }
 
+// Migra weightLogs legacy: si no tienen dateISO pero sí date, copia date → dateISO
+export function migrateWeightLogsDateToDateISO() {
+  db.read();
+  const arr = (db.data?.weightLogs as any[] | undefined) ?? [];
+  let changed = false;
+
+  for (const e of arr) {
+    if (!e.dateISO && typeof e.date === "string" && e.date.length >= 10) {
+      e.dateISO = e.date;
+      changed = true;
+    }
+  }
+
+  if (changed) db.write();
+}
+
 export function save() {
 db.write();
 }
