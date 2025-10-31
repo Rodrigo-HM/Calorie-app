@@ -1,0 +1,148 @@
+{
+  "users": [],
+  "foods": [
+    {
+      "id": "0a43c398-6359-439f-9ad9-de12aa4132ce",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Manzana",
+      "kcal": 52,
+      "protein": 0.3,
+      "carbs": 14,
+      "fat": 0.2
+    },
+    {
+      "id": "0b048100-e8b8-44fd-87cd-6a5bb0308bfb",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Arroz blanco",
+      "kcal": 130,
+      "protein": 2.7,
+      "carbs": 28,
+      "fat": 0.3
+    },
+    {
+      "id": "166069a8-ee31-458c-8c54-17a88c177326",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Pechuga de pollo",
+      "kcal": 165,
+      "protein": 31,
+      "carbs": 0,
+      "fat": 3.6
+    },
+    {
+      "id": "f4d95590-d5b7-476d-928c-91575c7bb148",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Huevo",
+      "kcal": 155,
+      "protein": 13,
+      "carbs": 1.1,
+      "fat": 11
+    },
+    {
+      "id": "8947b66a-c240-481a-8587-44ccee2da99d",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Leche desnatada",
+      "kcal": 34,
+      "protein": 3.4,
+      "carbs": 5,
+      "fat": 0.1
+    },
+    {
+      "id": "fd606451-08a2-46d1-a193-676e3906d015",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Avena",
+      "kcal": 389,
+      "protein": 16.9,
+      "carbs": 66.3,
+      "fat": 6.9
+    },
+    {
+      "id": "76d4a3b2-4964-410a-8f16-adc3e58d6106",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Plátano",
+      "kcal": 89,
+      "protein": 1.1,
+      "carbs": 23,
+      "fat": 0.3
+    },
+    {
+      "id": "4d040dd0-2f44-4585-afb0-ed587ec50849",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Atún en agua",
+      "kcal": 116,
+      "protein": 26,
+      "carbs": 0,
+      "fat": 1
+    },
+    {
+      "id": "81dec8cf-ea50-40b4-bcaf-b9eb96bc8d12",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Yogur natural 0%",
+      "kcal": 59,
+      "protein": 10,
+      "carbs": 3.6,
+      "fat": 0.4
+    },
+    {
+      "id": "b3eacf34-f67c-44b6-bd5c-50a050ffae68",
+      "createdAt": "2025-10-31T09:45:23.065Z",
+      "name": "Pan integral",
+      "kcal": 247,
+      "protein": 13,
+      "carbs": 41,
+      "fat": 4.2
+    }
+  ],
+  "entries": [],
+  "goals": [
+    {
+      "userId": "u1",
+      "kcal": 2200,
+      "protein": 140,
+      "carbs": 240,
+      "fat": 70,
+      "updatedAt": "2025-10-31T09:59:40.510Z"
+    }
+  ],
+  "profiles": [
+    {
+      "userId": "u1",
+      "sex": "M",
+      "age": 30,
+      "heightCm": 180,
+      "weightKg": 80,
+      "activity": "moderate",
+      "goal": "maintain",
+      "updatedAt": "2025-10-31T09:59:40.506Z"
+    }
+  ],
+  "weightLogs": [
+    {
+      "id": "bb27e3ee-b9ed-41d4-8e2d-dc3241ff2bbe",
+      "userId": "u1",
+      "dateISO": "2025-10-10T00:00:00.000Z",
+      "weightKg": 80,
+      "createdAt": "2025-10-31T09:59:40.011Z"
+    },
+    {
+      "id": "1724ba12-9a71-43fd-b9db-e99aed44cb31",
+      "userId": "u1",
+      "dateISO": "2025-10-20T12:00:00.000Z",
+      "weightKg": 79,
+      "createdAt": "2025-10-31T09:59:40.012Z"
+    },
+    {
+      "id": "8b5c019c-2f90-4639-9dab-162a845f8c59",
+      "userId": "u1",
+      "dateISO": "2025-10-30T23:59:59.999Z",
+      "weightKg": 78,
+      "createdAt": "2025-10-31T09:59:40.012Z"
+    },
+    {
+      "id": "55157ad9-dd0e-4cfb-9622-5aa98e1ac89c",
+      "userId": "u1",
+      "dateISO": "2025-11-01T00:00:00.000Z",
+      "weightKg": 77,
+      "createdAt": "2025-10-31T09:59:40.013Z"
+    }
+  ]
+}

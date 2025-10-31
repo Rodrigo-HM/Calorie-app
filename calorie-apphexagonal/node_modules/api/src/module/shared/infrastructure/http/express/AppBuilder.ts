@@ -19,6 +19,8 @@ import {
   seedFoodsIfEmpty,
   migrateEntriesDateToDateISO,
   migrateWeightLogsDateToDateISO,
+  migrateWeightLogsUserToSingleUser,
+  
 } from "../../db/database";
 
 export function buildApp() {
@@ -27,6 +29,9 @@ export function buildApp() {
   seedFoodsIfEmpty();
   migrateEntriesDateToDateISO();
   migrateWeightLogsDateToDateISO();
+  //migrateWeightLogsUserToSingleUser();
+  //migrateWeightLogsUserByEmail("test@example.com");
+  console.log("[APP] Migrations executed");
   
   const app = express();
 
