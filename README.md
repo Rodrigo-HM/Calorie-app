@@ -1,206 +1,205 @@
-# 🍽️ Calorie App (Arquitectura Hexagonal)
+# 🍽️ Calorie App API (TypeScript + Express) — Arquitectura Hexagonal
 
-Aplicación fullstack para gestionar calorías y hábitos alimenticios, organizada como monorepo. El backend está migrado a Arquitectura Hexagonal (puertos y adaptadores), con test unitarios, de integración y E2E. El frontend (React + Vite) convive en el mismo repo.
+API para gestionar calorías, alimentos, metas, perfil y registros de peso. Basada en Arquitectura Hexagonal, validación con Zod y pruebas por capas.
 
-Principales módulos backend:
+## 🧭️ Resumen técnico
+
+* 🧩 **Arquitectura:** Hexagonal (domain / application / infra) con puertos y adaptadores.
+* 🌐 **HTTP:** Express + controllers delgados y presenters (compatibilidad de shape).
+* ✅ **Validación:** Zod en el borde (acepta formatos *legacy* donde aplica).
+* 🚡️ **Errores:** middleware global + patrones `parse/assert`.
+* 💮 **Persistencia:** LowDB (dev/test), ficheros de datos separados por entorno.
+* 🥪 **Testing:** Unit, Integración Infra, Integración HTTP, E2E (mínimos).
 
-* Auth, Foods, Entries, Goals, Profile, WeightLogs
+---
 
-* Capa application con casos de uso/servicios
+## 🔧 Requisitos
 
-* Repositorios (puertos) e implementaciones LowDB (adaptadores)
+* Node 18+ (ideal 20+)
+* npm 8+
 
-* Controllers HTTP (Express) delgados, con validación via Zod
+---
 
-* DI (container) para cablear repos/servicios/controllers
+## 🚀 Ejecución
 
-## 📂 Estructura del monorepo
+Monorepo:
 
-calorie-app/
+* Dev (API + Web):
 
-* apps/
+  ```bash
+  npm run dev
+  ```
+* Solo API (desde raíz):
 
-  * api/ → Backend (Node/Express + Arquitectura Hexagonal)
+  ```bash
+  npm -w apps/api run dev
+  ```
+* Solo Web:
 
-  * web/ → Frontend (React + Vite + Tailwind)
+  ```bash
+  npm -w apps/web run dev
+  ```
 
-* package.json (workspaces)
+**Puertos:**
 
-* README.md
+* 🔌 API: por defecto `3000` (usa `PORT` para cambiar).
+* ⚡ Web: Vite en `5173+`.
 
-apps/api/src (backend)
+---
 
-* module/
+## 🌱 Entorno y datos
 
-  * shared/ (db, config, http AppBuilder, di, token, error middleware)
+Variables (apps/api):
 
-  * auth/ (services, repository, http)
+* `NODE_ENV`: `development` | `test` | `production` (default: `development`)
+* `DB_PATH`: ruta absoluta opcional al JSON (si no, usa rutas por entorno)
+* `JWT_SECRET`: obligatorio en prod (en dev hay uno por defecto)
+* `JWT_EXPIRES_IN`: default `2h`
 
-  * foods/ (aplication/ports, infrastructure/http)
+Rutas de datos por defecto:
 
-  * entries/ (aplication: casos de uso; infra: repos y http)
+* 🧑‍💻 **Desarrollo:** `apps/api/data/dev/.db.dev.json`
+* 🧫 **Test:** `apps/api/data/test/.db.test.json`
 
-  * goals/ (aplication: GoalsService; infra: repo y http)
+**Override puntual (Windows CMD):**
 
-  * profile/ (domain: GoalsCalculator; infra: repo y http)
+```cmd
+set DB_PATH=D:\...\mi-db.json && npm -w apps/api run dev
+```
 
-  * weightLogs/ (aplication/ports; infra: repo y http)
+---
 
-* tests
+## 🗂️ Estructura (API)
 
-  * test/unit/ (application, controller, infrastructure)
+```
+apps/api/
+  entry_point/
+    server.ts
+  src/module/
+    shared/
+      infrastructure/
+        config/config.ts
+        db/database.ts
+        http/express/
+          appBuilder.ts
+          middlewares/...
+    auth/
+      aplication/            # puertos + AuthService
+      infrastructure/        # BcryptHasher, JwtTokenService, UsersRepoLowdb, controller
+    foods/
+    entries/
+    goals/
+    profile/
+    weightLogs/
+      domain/                # VOs/entidades si aplica
+      aplication/            # casos de uso + puertos
+      infrastructure/        # repos LowDB, controllers, presenters
+test/
+  unit/
+  integration/
+    infra/                   # repos LowDB con DB temporal (withTempDb)
+    http/                    # rutas con supertest, sin auth real
+  e2e/
+  helpers/withTempDb.ts
+  setup.ts
+```
 
-  * test/integration/ (supertest contra AppBuilder con mocks de lowdb)
+---
 
-  * test/e2e/ (servidor real con lowdb/bcrypt/JWT reales y DB temporal)
+## Convenciones
 
-## 🚀 Tecnologías
+* 👷️ **application** depende de **puertos (interfaces)**, no de infraestructura.
+* 🔌 **infrastructure** implementa los puertos (LowDB / HTTP).
+* 🧼 **Controllers:** validan con Zod, llaman casos de uso y usan presenters (alias date, calories, etc.).
+* 🧯 **Errores:** `AppError` + middleware; controllers usan `parse(schema)` + `next(err)`.
+* 🔁 **Migraciones (legacy)** — se ejecutan al arrancar (dev/test):
 
-* Backend: Node.js, Express, Zod, Arquitectura Hexagonal (Puertos/Adaptadores)
+  * `migrateEntriesDateToDateISO()` — copia `date` → `dateISO` si falta.
+  * `migrateWeightLogsDateToDateISO()` — copia `date` → `dateISO` si falta.
+  * `migrateWeightLogsUserToSingleUser()` — si hay 1 usuario, reasigna weightLogs legacy (userId vacío/u1) a ese usuario.
+  * ℹ️ Migraciones “puntuales por email” → como scripts de mantenimiento, **no** en el arranque.
 
-* Persistencia: LowDB (fácil de sustituir por SQL)
+---
 
-* DI: container propio por módulo
+## 🥪 Testing
 
-* JWT/Bcrypt: autenticación real en integración/E2E
+Ejecutar toda la suite:
 
-* Testing (apps/api):
+```bash
+npx jest --runInBand
+```
 
-  * Unit + Integration + E2E con Jest + Supertest
+**Tipos de tests:**
 
-  * Mocks por test type (lowdb/uuid en integración; reales en E2E)
+* 🔹 **Unit:** casos de uso con fakes de puertos (rápidos, abundantes).
+* 🔸 **Integración Infra:** adaptadores LowDB usando `withTempDb` (JSON temporal por prueba).
+* 🔶 **Integración HTTP:** `supertest` + `buildApp`, sin auth real (fallback `userId`), DB temporal.
+* 🭫 **E2E:** 1–2 flujos completos con auth real (máximo).
 
-* Frontend (apps/web): React + Vite + Tailwind (opcional en esta guía)
+**Aislamiento DB en tests:**
 
-## ⚙️ Requisitos y variables de entorno (backend)
+* `NODE_ENV=test` → `apps/api/data/test/.db.test.json` por defecto.
+* `withTempDb` → fichero temporal por test y se elimina al terminar.
 
-* Node 18+
+---
 
-* Variables (apps/api):
+## 🧰 Recetas frecuentes
 
-  * JWT_SECRET (obligatorio en prod; en test/dev se setea en config o setup)
+**“No se ven datos antiguos (peso/entries) en la web”**
 
-  * JWT_EXPIRES_IN (ej. 1h)
+* 🧭️ **Causas:** `userId` distinto (otro usuario) o datos legacy (`date` sin `dateISO`).
+* 🛠️ **Soluciones:**
 
-  * DB_PATH (ruta al JSON de LowDB; en integración/E2E se crea temporalmente)
+  * `migrate*DateToDateISO()` (legacy).
+  * `migrateWeightLogsUserToSingleUser()` si hay 1 usuario.
+  * Presenters → exponen `date` además de `dateISO`.
+  * Tests de integración: sin auth real (fallback `userId`).
+  * Cambiar ruta de datos: usar `DB_PATH` para forzar un fichero concreto.
+  * En dev/test, usar las rutas por defecto (`apps/api/data/...`).
 
-## 🛠️ Instalación
+---
 
-Desde la raíz del monorepo:
+## 🧩 Añadir un módulo nuevo (6 pasos)
 
-git clone <https://github.com/TU-USUARIO/calorie-app.git> cd calorie-app npm install
+1. **Dominio:** VOs / entidades y lógica pura (si aplica).
+2. **Application:** casos de uso y puertos (interfaces).
+3. **Infra:** repositorio LowDB que implemente el puerto.
+4. **Controller HTTP:** valida con Zod, llama caso de uso, usa presenters si hace falta.
+5. **Composición:** `buildXxxService` inyecta repositorios concretos en casos de uso.
+6. **Tests:**
 
-## ▶️ Desarrollo
+   * Unit: casos de uso con fakes.
+   * Integración Infra: repos LowDB + withTempDb.
+   * Integración HTTP: rutas con supertest (sin auth real), withTempDb.
 
-* Levantar frontend + backend (si tienes scripts de orquestación en la raíz): npm run dev
+---
 
-* Solo backend: cd apps/api npm run dev (si tienes script) o node/tsx tu entry (según tu setup)
+## ✅ Calidad y mejoras recomendadas
 
-* Solo frontend: cd apps/web npm run dev
+* 🧹 ESLint + Prettier + lint-staged (Husky)
+* 📜 Logger estructurado: pino + `requestId`
+* 📄 OpenAPI: `zod-to-openapi` o spec manual en `/docs` (dev)
+* 🔐 Seguridad: CORS explícito, rate limit en auth, política de contraseñas
+* 🗄️ Persistencia real: Postgres/Prisma o Drizzle, migraciones versionadas
+* 📈 Métricas: contadores por ruta/estado, latencias p95
 
-## 🧪 Testing (apps/api)
+---
 
-Estructura de la pirámide:
+## 🛠️ Comandos útiles
 
-* Unit: prueba lógica de application/domain/controllers con fakes (sin infra real)
+* **API en puerto alternativo:**
 
-* Integración: Express + rutas reales con supertest y mocks de lowdb/uuid
+  ```cmd
+  set PORT=3001 && npm -w apps/api run dev
+  ```
+* **Mover DB antigua a la nueva ubicación (ejemplo Windows CMD):**
 
-* E2E: servidor real con lowdb/bcrypt/JWT reales y DB temporal
+  ```cmd
+  move /Y apps\api\apps\api\db.json apps\api\data\dev\.db.dev.json
+  ```
 
-Desde apps/api:
+---
 
-* Todos (unit + integration): npx jest
+## 📜 Licencia
 
-* Solo unit: npx jest test/unit
-
-* Solo integración: npx jest test/integration
-
-* E2E (servidor real en puerto efímero, lowdb real): npx jest -c jest.e2e.config.js
-
-Scripts recomendados en apps/api/package.json: { "scripts": { "test": "jest", "test:unit": "jest test/unit", "test:int": "jest test/integration", "test:e2e": "jest -c jest.e2e.config.js", "test:watch": "jest --watch" } }
-
-Notas:
-
-* Integración usa mocks de lowdb/uuid definidos en test/mocks para evitar ESM y controlar datos seed (foods).
-
-* E2E usa lowdb y steno reales (ESM). Se requiere babel-jest y ts-jest ESM (ya configurado). El setup E2E crea DB_PATH temporal por suite, setea JWT_SECRET y arranca el app.listen(0).
-
-## 🔩 Arquitectura (resumen)
-
-* Controller (HTTP): valida con Zod, orquesta casos de uso/servicios, mapea errores a HTTP. No contiene lógica de negocio ni acceso a DB.
-
-* Application (casos de uso/servicios): contiene reglas de negocio puras (p. ej., Entries list con totales; GoalsService normaliza calories→kcal; validaciones de rango en WeightLogs).
-
-* Ports (interfaces): contratos de acceso a datos (ej. EntriesRepository, FoodsReadRepository, GoalsRepository, WeightLogsRepository).
-
-* Adapters/Infra: implementaciones concretas (LowDB) que satisfacen los puertos.
-
-* DI/Container: crea repos + servicios + controllers por módulo (punto único de cableado).
-
-* Shared: AppBuilder (Express + middlewares + rutas), errorMiddleware (Zod/AppError), token service, config/env.
-
-Módulos destacados:
-
-* Auth: AuthService (register/login) con PasswordHasher y TokenService; UserRepository LowDB.
-
-* Entries: casos de uso UpdateEntryGrams, RemoveEntry, ListEntriesByDay (calcula totales).
-
-* Goals: GoalsService (set/get) con normalización; controller añade alias calories.
-
-* Profile: ProfileController persiste perfil y usa calculateGoals de dominio para recalcular metas y guardarlas.
-
-* WeightLogs: Controller valida y persiste; repo filtra por rango inclusivo (YYYY-MM-DD→T00/T23:59:59.999Z).
-
-* Foods: Controller filtra por query search; repositorio solo-lectura.
-
-## ✅ Cobertura de tests (apps/api)
-
-* Unit
-
-  * AuthService (register/login, EMAIL_TAKEN, INVALID_CREDENTIALS)
-
-  * Entries (update/remove/list-with-totals)
-
-  * GoalsService (set/get, normalización)
-
-  * ProfileController (update calcula metas y persiste goals)
-
-  * WeightLogsController (validaciones, fecha actual)
-
-  * calculateGoals (dominio)
-
-  * Repos WeightLogs (infra): rangos inclusivos
-
-* Integración
-
-  * Auth (register/login)
-
-  * Foods (list, getById 404)
-
-  * Entries (crear + listar con totales)
-
-  * Goals (set/get con alias calories)
-
-* E2E
-
-  * Flujo principal: register → login → update profile (calcula goals) → create entry → list entries con totales → create weight-log → list por rango
-
-## 📌 Próximos pasos
-
-* Crear caso de uso CreateEntry (application) y añadir tests unit (happy + FOOD_NOT_FOUND).
-
-* Tests de errorMiddleware (ZodError → 400; códigos a status).
-
-* Migrar LowDB a Postgres (cambiando solo adaptadores y container).
-
-* Despliegue:
-
-  * Frontend: Vercel
-
-  * Backend: Render / Railway (setear JWT_SECRET, DB_PATH persistente)
-
-## ✍️ Autor
-
-Rodrigo Hernández Martín\
-Proyecto en desarrollo continuo 🚀
+Uso educativo y de aprendizaje. Ajusta según tus necesidades.
