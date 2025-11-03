@@ -100,7 +100,7 @@
       "protein": 140,
       "carbs": 240,
       "fat": 70,
-      "updatedAt": "2025-10-31T09:59:40.510Z"
+      "updatedAt": "2025-11-03T09:59:24.538Z"
     }
   ],
   "profiles": [
@@ -112,37 +112,37 @@
       "weightKg": 80,
       "activity": "moderate",
       "goal": "maintain",
-      "updatedAt": "2025-10-31T09:59:40.506Z"
+      "updatedAt": "2025-11-03T09:59:24.371Z"
     }
   ],
   "weightLogs": [
     {
-      "id": "bb27e3ee-b9ed-41d4-8e2d-dc3241ff2bbe",
+      "id": "100cdfb8-f77c-4c0b-8099-2b4f3a3e85f8",
       "userId": "u1",
       "dateISO": "2025-10-10T00:00:00.000Z",
       "weightKg": 80,
-      "createdAt": "2025-10-31T09:59:40.011Z"
+      "createdAt": "2025-11-03T09:59:24.177Z"
     },
     {
-      "id": "1724ba12-9a71-43fd-b9db-e99aed44cb31",
+      "id": "731c133f-1ba2-4d4e-899c-b9cbc53c872d",
       "userId": "u1",
       "dateISO": "2025-10-20T12:00:00.000Z",
       "weightKg": 79,
-      "createdAt": "2025-10-31T09:59:40.012Z"
+      "createdAt": "2025-11-03T09:59:24.178Z"
     },
     {
-      "id": "8b5c019c-2f90-4639-9dab-162a845f8c59",
+      "id": "ee404d6d-168b-4209-b32f-4328bf0e9417",
       "userId": "u1",
       "dateISO": "2025-10-30T23:59:59.999Z",
       "weightKg": 78,
-      "createdAt": "2025-10-31T09:59:40.012Z"
+      "createdAt": "2025-11-03T09:59:24.178Z"
     },
     {
-      "id": "55157ad9-dd0e-4cfb-9622-5aa98e1ac89c",
+      "id": "ab640e36-727d-4190-b181-393fa1cd2e47",
       "userId": "u1",
       "dateISO": "2025-11-01T00:00:00.000Z",
       "weightKg": 77,
-      "createdAt": "2025-10-31T09:59:40.013Z"
+      "createdAt": "2025-11-03T09:59:24.179Z"
     }
   ]
 }

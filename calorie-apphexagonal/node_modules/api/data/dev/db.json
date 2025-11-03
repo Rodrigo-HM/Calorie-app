@@ -710,6 +710,14 @@
       "grams": 100,
       "dateISO": "2025-10-31T09:39:11.863Z",
       "createdAt": "2025-10-31T09:39:11.864Z"
+    },
+    {
+      "id": "62b297b9-c2c4-40b4-9aa8-0bcb73cebcb5",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "foodId": "33817f30-6b66-43d7-a377-1d6aeb48789b",
+      "grams": 100,
+      "dateISO": "2025-11-03T09:58:48.644Z",
+      "createdAt": "2025-11-03T09:58:48.645Z"
     }
   ],
   "goals": [
@@ -731,11 +739,11 @@
     },
     {
       "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
-      "kcal": 1820,
-      "protein": 60,
-      "carbs": 332,
-      "fat": 28,
-      "updatedAt": "2025-10-31T10:01:31.727Z"
+      "kcal": 2275,
+      "protein": 87,
+      "carbs": 390,
+      "fat": 41,
+      "updatedAt": "2025-11-03T09:52:16.875Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -982,11 +990,11 @@
       "sex": "M",
       "age": 26,
       "heightCm": 181,
-      "weightKg": 35,
+      "weightKg": 51,
       "bodyFat": 15,
       "activity": "moderate",
       "goal": "bulk",
-      "updatedAt": "2025-10-31T10:01:31.726Z"
+      "updatedAt": "2025-11-03T09:52:16.873Z"
     },
     {
       "userId": "aecf716a-aa89-416c-975a-733ddf936694",
@@ -1145,6 +1153,41 @@
       "dateISO": "2025-10-31T10:00:57.853Z",
       "weightKg": 35,
       "createdAt": "2025-10-31T10:00:57.853Z"
+    },
+    {
+      "id": "7c3c0ea6-1c80-4647-9021-2d805c069692",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-11-03T09:52:00.639Z",
+      "weightKg": 91,
+      "createdAt": "2025-11-03T09:52:00.641Z"
+    },
+    {
+      "id": "2608733b-671e-4c1c-88f7-5551aa2ab289",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-11-03T09:52:07.751Z",
+      "weightKg": 90,
+      "createdAt": "2025-11-03T09:52:07.751Z"
+    },
+    {
+      "id": "6e45cd2c-db75-4972-84ba-9a858a235e3a",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-11-03T09:52:11.456Z",
+      "weightKg": 99,
+      "createdAt": "2025-11-03T09:52:11.457Z"
+    },
+    {
+      "id": "a8e326f9-30a4-42df-9c4c-a14572774319",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-11-03T09:52:14.044Z",
+      "weightKg": 50,
+      "createdAt": "2025-11-03T09:52:14.045Z"
+    },
+    {
+      "id": "5c0c6655-5c3a-46df-9fad-b23c99668428",
+      "userId": "bdb970ee-311e-4322-b9aa-ace9f69237d8",
+      "dateISO": "2025-11-03T09:52:16.866Z",
+      "weightKg": 51,
+      "createdAt": "2025-11-03T09:52:16.867Z"
     }
   ]
 }

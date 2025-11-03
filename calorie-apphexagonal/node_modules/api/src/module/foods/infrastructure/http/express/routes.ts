@@ -9,8 +9,6 @@ export function buildFoodsRoutes() {
   r.get('/foods', foodsController.list);
   r.get('/foods/:id', foodsController.getById);
 
-  // Ping opcional para depurar montaje
-  r.get('/ping-foods', (_req, res) => res.json({ ok: true }));
 
   return r;
 }
