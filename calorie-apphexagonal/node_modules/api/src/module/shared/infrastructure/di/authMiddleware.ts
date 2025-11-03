@@ -1,11 +1,17 @@
-import { buildAuthMiddleware } from '../http/express/middlewares/auth';
-import { JwtTokenService } from '../token/jwt-token.service';
+import type { TokenService } from "src/module/auth/application/ports/security";
 
-/**
- * Crea una instancia del middleware de autenticación
- * usando JwtTokenService con el secret definido en config.
- */
-export function buildAuthMiddlewareInstance() {
-  const verifier = new JwtTokenService(); // usa config.jwtSecret por defecto
-  return buildAuthMiddleware(verifier);
+export function buildAuthMiddleware(tokens: TokenService) {
+  return function authMiddleware(req: any, res: any, next: any) {
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+    if (!token) return res.status(401).json({ error: "UNAUTHORIZED" });
+
+    try {
+      const payload = tokens.verify<any>(token);
+      req.user = { id: payload.sub, email: payload.email };
+      next();
+    } catch {
+      return res.status(401).json({ error: "UNAUTHORIZED" });
+    }
+  };
 }

@@ -13,8 +13,8 @@ import { AuthController } from "src/module/auth/infrastructure/http/express/Auth
 
 // Foods
 import { FoodsReadRepository } from "src/module/foods/infrastructure/repository/FoodsReadRepository";
-import { FoodsController } from "src/module/foods/infrastructure/http/express/FoodsController";
 import { FoodsService } from "src/module/foods/application/FoodsService";
+import { FoodsController } from "src/module/foods/infrastructure/http/express/FoodsController";
 
 // Goals
 import { GoalsRepositoryLowdb } from "src/module/goals/infrastructure/repository/GoalsRepositoryLowdb";
@@ -47,26 +47,34 @@ import type { IdGenerator as WLIdGenerator } from "src/module/weightLogs/applica
 import type { Clock as WLClock } from "src/module/weightLogs/application/ports/Clock";
 import { WeightLogsController } from "src/module/weightLogs/infrastructure/http/express/WeightLogsController";
 
+// Auth middleware builder
+import { buildAuthMiddleware } from "../di/authMiddleware";
+
 export const container = {
-  // Auth
+  // Exponer el middleware de autorización (para rutas protegidas)
+  authz() {
+    const tokens = new JwtTokenService(config.jwtSecret);
+    const authMiddleware = buildAuthMiddleware(tokens);
+    return { authMiddleware };
+  },
+
+  // Auth (endpoints públicos /auth)
   authModule() {
     const users = new UserRepositoryLowdb();
     const hasher = new BcryptHasher();
     const tokens = new JwtTokenService(config.jwtSecret);
-
     const authService = new AuthService(users, hasher, tokens, uuid);
     const authController = new AuthController(authService);
-
     return { authController };
   },
 
-  // Foods (módulo independiente)
+  // Foods
   foodsModule() {
-  const foodsRepo = new FoodsReadRepository();
-  const foodsService = new FoodsService(foodsRepo);
-  const foodsController = new FoodsController(foodsService);
-  return { foodsController };
-},
+    const foodsRepo = new FoodsReadRepository();
+    const foodsService = new FoodsService(foodsRepo);
+    const foodsController = new FoodsController(foodsService);
+    return { foodsController };
+  },
 
   // Goals
   goalsModule() {
@@ -78,46 +86,38 @@ export const container = {
 
   // Profile
   profileModule() {
-  // Repo de perfil
-  const profileRepo = new ProfileRepositoryLowdb();
+    // Repo de perfil
+    const profileRepo = new ProfileRepositoryLowdb();
 
-  // Goals service (para normalizar parciales y guardar)
-  const goalsRepo = new GoalsRepositoryLowdb();
-  const goalsService = new GoalsService(goalsRepo);
+    // Goals service (normaliza parciales y guarda)
+    const goalsRepo = new GoalsRepositoryLowdb();
+    const goalsService = new GoalsService(goalsRepo);
 
-  // Facade para RecalculateAndSaveGoals (firma: set(userId, data: GoalsInput): Promise<Goals>)
-  const goalsPortForRecalc: { set: (userId: string, data: GoalsInput) => Promise<Goals> } = {
-    set: (userId, data) => goalsService.set(userId, data),
-  };
+    // Facade para RecalculateAndSaveGoals (set con GoalsInput)
+    const goalsPortForRecalc: { set: (userId: string, data: GoalsInput) => Promise<Goals> } = {
+      set: (userId, data) => goalsService.set(userId, data),
+    };
 
-  // Caso de uso: RecalculateAndSaveGoals SOLO recibe el goalsPort con set(...)
-  const recalcGoals = new RecalculateAndSaveGoals(goalsPortForRecalc);
+    const recalcGoals = new RecalculateAndSaveGoals(goalsPortForRecalc);
+    const updateProfile = new UpdateProfile(profileRepo);
 
-  // Caso de uso: UpdateProfile usa el repo directamente
-  const updateProfile = new UpdateProfile(profileRepo);
+    // Puerto de lectura para el controller (get profile)
+    const profilePortForController = {
+      get: (userId: string) => profileRepo.get(userId),
+    };
 
-  // Puerto que espera ProfileController como 3er argumento: get(userId): Promise<Profile|null>
-  const profilePortForController = {
-    get: (userId: string) => profileRepo.get(userId),
-  };
-
-  // Respeta la firma: (updateProfile, recalcGoals, profilePortForController)
-  const profileController = new ProfileController(updateProfile, recalcGoals, profilePortForController);
-
-  return { profileController };
-},
+    const profileController = new ProfileController(updateProfile, recalcGoals, profilePortForController);
+    return { profileController };
+  },
 
   // Entries
   entriesModule() {
-    // Infra repos
     const entriesRepo = new EntriesRepositoryLowdb();
     const foodsRepo = new FoodsReadRepositoryLowdb();
 
-    // Puertos técnicos
     const ids: EntriesIdGenerator = { nextId: uuid };
     const clock: EntriesClock = { now: () => new Date() };
 
-    // Application
     const createEntry = new CreateEntry(entriesRepo, foodsRepo, ids, clock);
     const listByDay = new ListEntriesByDay(entriesRepo, foodsRepo);
     const updateGrams = new UpdateEntryGrams(entriesRepo);

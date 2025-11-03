@@ -1,13 +1,9 @@
-export interface PasswordHasher {
+export interface Hasher {
   hash(plain: string): Promise<string>;
-  compare(plain: string, hash: string): Promise<boolean>;
+  compare(plain: string, hashed: string): Promise<boolean>;
 }
 
 export interface TokenService {
-  sign(
-    payload: Record<string, unknown>,
-    opts?: { expiresIn?: string | number }
-  ): Promise<string>;
-
-  verify<T = unknown>(token: string): Promise<T>;
+  sign(payload: Record<string, unknown>, opts?: { expiresIn?: string | number }): string;
+  verify<T = any>(token: string): T;
 }

@@ -5,7 +5,10 @@ import { buildEntriesRoutes } from "../../../../entries/infrastructure/http/expr
 import { buildGoalsRoutes } from "../../../../goals/infrastructure/http/express/routes";
 import { buildProfileRoutes } from "../../../../profile/infrastructure/http/express/routes";
 import { buildWeightLogsRoutes } from "../../../../weightLogs/infrastructure/http/express/routes";
-import { buildAuthMiddlewareInstance } from "../../di/authMiddleware";
+import { buildAuthMiddleware } from "../../di/authMiddleware";
+import { JwtTokenService } from "../../token/jwt-token.service";
+import { config } from "../../config/config";
+
 import {
   buildCorsAndJson,
   mountHealth,
@@ -20,7 +23,6 @@ import {
   migrateEntriesDateToDateISO,
   migrateWeightLogsDateToDateISO,
   migrateWeightLogsUserToSingleUser,
-  
 } from "../../db/database";
 
 export function buildApp() {
@@ -29,10 +31,10 @@ export function buildApp() {
   seedFoodsIfEmpty();
   migrateEntriesDateToDateISO();
   migrateWeightLogsDateToDateISO();
-  //migrateWeightLogsUserToSingleUser();
-  //migrateWeightLogsUserByEmail("test@example.com");
+  // migrateWeightLogsUserToSingleUser();
+  // migrateWeightLogsUserByEmail("test@example.com");
   console.log("[APP] Migrations executed");
-  
+
   const app = express();
 
   // 1. Middlewares globales
@@ -53,7 +55,10 @@ export function buildApp() {
   protectedRouter.use(buildWeightLogsRoutes());
 
   // 4. Autenticación (modo con o sin auth)
-  const auth = process.env.AUTH_DISABLED === "true" ? undefined : buildAuthMiddlewareInstance?.();
+  const tokens = new JwtTokenService(config.jwtSecret);
+  const authMiddleware = buildAuthMiddleware(tokens);
+  const auth = process.env.AUTH_DISABLED === "true" ? undefined : authMiddleware;
+
   if (auth) {
     mountProtectedRoutes(app, auth, protectedRouter);
   } else {

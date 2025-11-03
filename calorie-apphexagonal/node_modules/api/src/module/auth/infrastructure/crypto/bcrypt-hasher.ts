@@ -1,14 +1,11 @@
 import bcrypt from "bcryptjs";
-import type { PasswordHasher } from "../../application/ports/security";
+import type { Hasher } from "../../application/ports/security";
 
-export class BcryptHasher implements PasswordHasher {
-  constructor(private readonly rounds = 10) {}
-
-  hash(plain: string): Promise<string> {
-    return bcrypt.hash(plain, this.rounds);
+export class BcryptHasher implements Hasher {
+  async hash(plain: string): Promise<string> {
+    return bcrypt.hash(plain, 10);
   }
-
-  compare(plain: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(plain, hash);
+  async compare(plain: string, hashed: string): Promise<boolean> {
+    return bcrypt.compare(plain, hashed);
   }
 }

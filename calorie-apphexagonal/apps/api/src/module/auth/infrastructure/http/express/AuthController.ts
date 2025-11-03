@@ -1,20 +1,30 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
+import { z } from "zod";
 import { AuthService } from "../../../application/auth.service";
+
+const RegisterSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
 
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-  login = async (req: Request, res: Response) => {
-    const { email, password } = req.body ?? {};
-    const result = await this.auth.login({ email, password }); // ← objeto
-    // result: { token, user }
-    return res.status(200).json(result);
+  register = async (req: Request, res: Response) => {
+    const { email, password } = RegisterSchema.parse(req.body ?? {});
+    const out = await this.auth.register({ email, password });
+    // 201 Created
+    return res.status(201).json(out);
   };
 
-  register = async (req: Request, res: Response) => {
-    const { email, password } = req.body ?? {};
-    const result = await this.auth.register({ email, password }); // ← objeto
-    // result: { token, user }
-    return res.status(201).json(result);
+  login = async (req: Request, res: Response) => {
+    const { email, password } = LoginSchema.parse(req.body ?? {});
+    const out = await this.auth.login({ email, password });
+    return res.json(out);
   };
 }

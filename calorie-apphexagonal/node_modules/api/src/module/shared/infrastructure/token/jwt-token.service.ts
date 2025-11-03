@@ -1,30 +1,20 @@
-import jwt, { type SignOptions } from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import type { TokenService } from "src/module/auth/application/ports/security";
-import { config } from "../config/config";
 
 export class JwtTokenService implements TokenService {
-  private readonly secret: string;
-  private readonly defaultExpiresIn: string | number;
+  constructor(private readonly secret: Secret) {}
 
-  constructor(secret = config.jwtSecret, defaultExpiresIn: string | number = "2h") {
-    if (!secret || typeof secret !== "string") {
-      throw new Error("JWT secret must be a non-empty string");
+  sign(payload: Record<string, unknown>, opts?: { expiresIn?: string | number }): string {
+    const options: SignOptions = {};
+    if (opts?.expiresIn !== undefined) {
+      // jsonwebtoken acepta string | number para expiresIn
+      options.expiresIn = opts.expiresIn as any;
     }
-    this.secret = secret;
-    this.defaultExpiresIn = defaultExpiresIn;
+    // Aseguramos los tipos esperados por la lib
+    return jwt.sign(payload as object, this.secret, options);
   }
 
-  async sign(
-    payload: Record<string, unknown>,
-    opts?: { expiresIn?: string | number }
-  ): Promise<string> {
-    const expiresIn = (opts?.expiresIn ?? this.defaultExpiresIn) as SignOptions["expiresIn"];
-    const token = jwt.sign(payload, this.secret, { expiresIn });
-    return Promise.resolve(token);
-  }
-
-  async verify<T = unknown>(token: string): Promise<T> {
-    const decoded = jwt.verify(token, this.secret) as T;
-    return Promise.resolve(decoded);
+  verify<T = any>(token: string): T {
+    return jwt.verify(token, this.secret) as T;
   }
 }
