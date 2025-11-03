@@ -1,57 +1,49 @@
-import type {
-  EntriesRepository,
-  Entry,
-} from "src/module/entries/aplication/ports/EntriesRepository";
+// test/fakes/entries.ts
+import type { EntriesRepository } from "src/module/entries/domain/EntriesRepository";
+import { Entry, type EntryCreateProps } from "src/module/entries/domain/Entry";
 
-type Seed = Partial<Entry> & { id: string; userId: string; dateISO?: string };
+export type Seed = Partial<EntryCreateProps> & { id: string; userId: string };
 
-export function makeEntriesRepo(seed: Seed[] = []): EntriesRepository {
-  // Normaliza el seed a Entry completo
-  const store: Entry[] = seed.map((s) => ({
-    id: s.id,
-    userId: s.userId,
-    foodId: s.foodId ?? "f1",
-    grams: s.grams ?? 100,
-    dateISO: s.dateISO ?? "2025-01-01T00:00:00.000Z",
-    createdAt: s.createdAt ?? "now",
-  }));
+export function makeEntry(over: Seed) {
+  return Entry.create({
+    id: over.id,
+    userId: over.userId,
+    foodId: over.foodId ?? "f1",
+    grams: over.grams ?? 100,
+    dateISO: over.dateISO ?? "2025-10-20T08:00:00.000Z",
+    createdAt: over.createdAt ?? "now",
+  });
+}
+
+export function makeEntriesRepo(seed: Seed[] = []): EntriesRepository & {
+  findByUserAndDay?: (userId: string, dayISO: string) => Promise<Entry[]>;
+  findByDay?: (userId: string, dayISO: string) => Promise<Entry[]>; // compat si algún test lo usa
+} {
+  const store: Entry[] = seed.map(makeEntry);
 
   return {
-    async findByDay(userId: string, dayISO: string): Promise<Entry[]> {
-      return store.filter(
-        (e) => e.userId === userId && e.dateISO.slice(0, 10) === dayISO
-      );
+    async listByUserAndDay(userId: string, dayISO: string) {
+      const start = `${dayISO}T00:00:00.000Z`;
+      const end   = `${dayISO}T23:59:59.999Z`;
+      return store.filter(e => e.userId === userId && e.dateISO >= start && e.dateISO <= end);
     },
-
-    async create(
-      userId: string,
-      data: { foodId: string; grams: number; dateISO: string }
-    ): Promise<Entry> {
-      const item: Entry = {
-        id: `e_${store.length + 1}`,
-        userId,
-        foodId: data.foodId,
-        grams: data.grams,
-        dateISO: data.dateISO,
-        createdAt: "now",
-      };
-      store.push(item);
-      return item;
+    // compat opcional
+    async findByDay(userId: string, dayISO: string) {
+      return this.listByUserAndDay(userId, dayISO);
     },
-
-    async updateGramsForUser(
-      id: string,
-      userId: string,
-      grams: number
-    ): Promise<Entry | null> {
-      const i = store.findIndex((e) => e.id === id && e.userId === userId);
+    async create(entry: Entry) {
+      store.push(entry);
+      return entry;
+    },
+    async updateGramsForUser(id: string, userId: string, grams: number) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
       if (i === -1) return null;
-      store[i] = { ...store[i], grams };
-      return store[i];
+      const updated = store[i].withGrams(grams);
+      store[i] = updated;
+      return updated;
     },
-
-    async deleteByIdForUser(id: string, userId: string): Promise<Entry | null> {
-      const i = store.findIndex((e) => e.id === id && e.userId === userId);
+    async deleteByIdForUser(id: string, userId: string) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
       if (i === -1) return null;
       const [removed] = store.splice(i, 1);
       return removed ?? null;

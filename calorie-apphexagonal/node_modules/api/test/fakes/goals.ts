@@ -1,21 +1,25 @@
-import type {
-  Goals,
-  GoalsInput,
-  GoalsRepository,
-} from "../../src/module/goals/aplication/ports/GoalsRepository";
+import type { GoalsRepository } from "src/module/goals/domain/GoalsRepository";
+import { ensureGoals, type Goals } from "src/module/goals/domain/Goals";
 
-export function makeGoalsRepo(seed?: Goals[] | null): GoalsRepository {
-  const list = Array.isArray(seed) ? seed : [];
-  const store = new Map<string, Goals>(list.map((g) => [g.userId, g]));
+// Semilla: metas por usuario (Partial<Goals> por comodidad)
+export type Seed = { userId: string } & Partial<Goals>;
+
+export function makeGoalsRepo(seed?: Seed[] | null): GoalsRepository {
+  const items = Array.isArray(seed) ? seed : [];
+
+  // Mapa userId -> Goals (sin userId dentro del objeto)
+  const store = new Map<string, Goals>();
+  items.forEach((s) => {
+    store.set(s.userId, ensureGoals(s));
+  });
 
   return {
     async get(userId: string): Promise<Goals | null> {
       return store.get(userId) ?? null;
     },
-    async set(userId: string, g: GoalsInput): Promise<Goals> {
-      const saved: Goals = { userId, ...g };
-      store.set(userId, saved);
-      return saved;
+    async set(userId: string, data: Goals): Promise<Goals> {
+      store.set(userId, data);
+      return data;
     },
   };
 }

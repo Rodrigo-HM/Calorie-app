@@ -1,5 +1,5 @@
-import { RecalculateAndSaveGoals } from "src/module/profile/aplication/RecalculateAndSaveGoals";
-import type { Profile } from "src/module/profile/aplication/ports/ProfileRepository";
+import { RecalculateAndSaveGoals } from "src/module/profile/application/RecalculateAndSaveGoals";
+import type { Profile } from "src/module/profile/domain/ProfileRepository";
 
 
 // Solo los campos que usa el cálculo (sin userId)

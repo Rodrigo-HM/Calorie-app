@@ -1,4 +1,4 @@
-import type { TokenService } from "../../src/module/auth/aplication/ports/security";
+import type { TokenService } from "../../src/module/auth/application/ports/security";
 
 export function makeTokenService(): TokenService {
   return {

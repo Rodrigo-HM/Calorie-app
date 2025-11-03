@@ -1,9 +1,8 @@
-import type { Goals } from "src/module/goals/aplication/ports/GoalsRepository";
+import type { Goals } from "../../domain/GoalsRepository";
 
-export type GoalsView = Omit<Goals, "userId"> & { calories: number };
+export type GoalsView = Goals & { calories: number };
 
-export function presentGoals(goals: Goals | null) {
-  if (!goals) return null;
-  const { userId: _ignore, ...rest } = goals;
-  return { ...rest, calories: goals.kcal } as GoalsView;
+export function presentGoals(g: Goals | null): GoalsView | null {
+  if (!g) return null;
+  return { ...g, calories: g.kcal };
 }

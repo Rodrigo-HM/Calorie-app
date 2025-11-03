@@ -1,4 +1,4 @@
-import { GoalsService } from "../../../src/module/goals/aplication/GoalsService";
+import { GoalsService } from "../../../src/module/goals/application/GoalsService";
 import { makeGoalsRepo } from "../../fakes/goals";
 
 describe("GoalsService (application)", () => {

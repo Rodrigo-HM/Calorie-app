@@ -1,41 +1,28 @@
-import { db } from '../../../shared/infrastructure/db/database';
-import type {
-  Goals as DomainGoals,
-  GoalsRepository as GoalsRepositoryPort,
-} from '../../../goals/aplication/ports/GoalsRepository';
+import { db } from "../../../shared/infrastructure/db/database";
+import type { GoalsRepository } from "../../domain/GoalsRepository";
+import type { Goals } from "../../domain/Goals";
 
-// Tipo interno de almacenamiento (incluye campo infra)
-type StoredGoals = DomainGoals & { updatedAt: string };
-
-export class GoalsRepositoryLowdb implements GoalsRepositoryPort {
-  async get(userId: string): Promise<DomainGoals | null> {
+export class GoalsRepositoryLowdb implements GoalsRepository {
+  async get(userId: string): Promise<Goals | null> {
     db.read();
-    const arr = (db.data!.goals ?? []) as StoredGoals[];
-    const it = arr.find(g => g.userId === userId) ?? null;
-    if (!it) return null;
-    // Ocultamos updatedAt al salir al puerto
-    const { updatedAt: _ignore, ...plain } = it;
-    return plain;
+    const row = (db.data!.goals as any[]).find((g) => g.userId === userId) ?? null;
+    if (!row) return null;
+    return {
+      kcal: row.kcal ?? row.calories ?? 0,
+      protein: row.protein ?? 0,
+      carbs: row.carbs ?? 0,
+      fat: row.fat ?? 0,
+    };
   }
 
-  async set(userId: string, data: Omit<DomainGoals, 'userId'>): Promise<DomainGoals> {
+  async set(userId: string, data: Goals): Promise<Goals> {
     db.read();
-    db.data!.goals ||= [];
-    const arr = db.data!.goals as StoredGoals[];
-    const now = new Date().toISOString();
-
-    const i = arr.findIndex(g => g.userId === userId);
-    const stored: StoredGoals = { userId, ...data, updatedAt: now };
-
-    if (i >= 0) {
-      arr[i] = { ...arr[i], ...stored };
-    } else {
-      arr.push(stored);
-    }
-
+    const goals = (db.data!.goals as any[]);
+    const idx = goals.findIndex((g) => g.userId === userId);
+    const row = { userId, ...data };
+    if (idx === -1) goals.push(row);
+    else goals[idx] = row;
     db.write();
-
-    const { updatedAt: _ignore, ...plain } = stored;
-    return plain;
+    return data;
   }
 }

@@ -1,13 +1,43 @@
-import { ListEntriesByDay } from "src/module/entries/aplication/use-cases/ListEntriesByDay";
-import type { EntriesRepository } from "../../../src/module/entries/aplication/ports/EntriesRepository";
-import type { FoodsReadRepository } from "../../../src/module/foods/aplication/ports/FoodsReadRepository";
+import { ListEntriesByDay } from "src/module/entries/application/use-cases/ListEntriesByDay";
+import type { EntriesRepository } from "src/module/entries/domain/EntriesRepository";
+import { Entry, type EntryCreateProps } from "src/module/entries/domain/Entry";
+import type { FoodsReadRepository } from "src/module/foods/application/ports/FoodsReadRepository";
 
-function makeEntriesRepoWith(items: any[]): EntriesRepository {
+type Seed = Partial<EntryCreateProps> & { id: string; userId: string };
+
+function makeEntry(over: Seed) {
+  return Entry.create({
+    id: over.id,
+    userId: over.userId,
+    foodId: over.foodId ?? "a",
+    grams: over.grams ?? 100,
+    dateISO: over.dateISO ?? "2025-10-20T08:00:00.000Z",
+    createdAt: over.createdAt ?? "now",
+  });
+}
+
+function makeEntriesRepoWith(items: Seed[]): EntriesRepository {
+  const store = items.map(makeEntry);
   return {
-    async findByDay(_userId: string, _dayISO: string) { return items; },
-    async create(userId, data) { return { id: "e1", userId, ...data, createdAt: "now" }; },
-    async updateGramsForUser(id, userId, grams) { return { id, userId, foodId: "f1", grams, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
-    async deleteByIdForUser(id, userId) { return { id, userId, foodId: "f1", grams: 100, dateISO: "2025-01-01T00:00:00.000Z", createdAt: "now" }; },
+    async listByUserAndDay(_userId, dayISO) {
+      const start = `${dayISO}T00:00:00.000Z`;
+      const end   = `${dayISO}T23:59:59.999Z`;
+      return store.filter(e => e.dateISO >= start && e.dateISO <= end);
+    },
+    async create(entry) { store.push(entry); return entry; },
+    async updateGramsForUser(id, userId, grams) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
+      if (i === -1) return null;
+      const updated = store[i].withGrams(grams);
+      store[i] = updated;
+      return updated;
+    },
+    async deleteByIdForUser(id, userId) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
+      if (i === -1) return null;
+      const [removed] = store.splice(i, 1);
+      return removed ?? null;
+    },
   };
 }
 
@@ -18,14 +48,12 @@ function makeFoodsRepo(list: any[]): FoodsReadRepository {
   };
 }
 
-describe("Entries.findByDay shape { items, totals }", () => {
+describe("Entries.listByUserAndDay shape { items, totals }", () => {
   it("retorna { items, totals }", async () => {
     const entriesRepo = makeEntriesRepoWith([
-      { id: "e1", userId: "u1", foodId: "a", grams: 100, date: "2025-10-20T08:00:00.000Z" },
+      { id: "e1", userId: "u1", foodId: "a", grams: 100, dateISO: "2025-10-20T08:00:00.000Z" },
     ]);
-    const foodsRepo = makeFoodsRepo([
-      { id: "a", name: "X", kcal: 100, protein: 10, carbs: 10, fat: 5 },
-    ]);
+    const foodsRepo = makeFoodsRepo([{ id: "a", name: "X", kcal: 100, protein: 10, carbs: 10, fat: 5 }]);
 
     const useCase = new ListEntriesByDay(entriesRepo, foodsRepo);
     const out = await useCase.run("u1", "2025-10-20");

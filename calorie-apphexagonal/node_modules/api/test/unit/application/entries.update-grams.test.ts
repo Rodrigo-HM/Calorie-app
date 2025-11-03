@@ -1,42 +1,61 @@
-import { UpdateEntryGrams } from "src/module/entries/aplication/use-cases/UpdateEntryGrams";
-import type { EntriesRepository, Entry } from "src/module/entries/aplication/ports/EntriesRepository";
+import { UpdateEntryGrams } from "src/module/entries/application/use-cases/UpdateEntryGrams";
+import type { EntriesRepository } from "src/module/entries/domain/EntriesRepository";
+import { Entry, type EntryCreateProps } from "src/module/entries/domain/Entry";
 
-function makeEntriesRepoWith(seed: Array<Partial<Entry> & { id: string; userId: string }>): EntriesRepository {
-  const store: Entry[] = seed.map(s => ({
-    id: s.id,
-    userId: s.userId,
-    foodId: s.foodId ?? "f1",
-    grams: s.grams ?? 100,
-    dateISO: s.dateISO ?? "2025-01-01T00:00:00.000Z",
-    createdAt: s.createdAt ?? "now",
-  }));
+type Seed = Partial<EntryCreateProps> & { id: string; userId: string };
 
+function makeEntry(over: Seed) {
+  return Entry.create({
+    id: over.id,
+    userId: over.userId,
+    foodId: over.foodId ?? "f1",
+    grams: over.grams ?? 100,
+    dateISO: over.dateISO ?? "2025-11-03T08:00:00.000Z",
+    createdAt: over.createdAt ?? "now",
+  });
+}
+
+function makeEntriesRepo(seed: Seed[] = []): EntriesRepository {
+  const store = seed.map(makeEntry);
   return {
-    async findByDay() { return store; },
-    async create(userId, data) {
-      const item: Entry = { id: "e_new", userId, ...data, createdAt: "now" };
-      store.push(item); return item;
+    async listByUserAndDay(userId: string, dayISO: string) {
+      const start = `${dayISO}T00:00:00.000Z`; const end = `${dayISO}T23:59:59.999Z`;
+      return store.filter(e => e.userId === userId && e.dateISO >= start && e.dateISO <= end);
     },
+    async create(entry) { store.push(entry); return entry; },
     async updateGramsForUser(id, userId, grams) {
       const i = store.findIndex(e => e.id === id && e.userId === userId);
-      if (i === -1) return null;                 // clave: respeta userId
-      store[i] = { ...store[i], grams }; return store[i];
+      if (i === -1) return null;
+      const updated = store[i].withGrams(grams);
+      store[i] = updated;
+      return updated;
     },
-    async deleteByIdForUser() { return null; },
+    async deleteByIdForUser(id, userId) {
+      const i = store.findIndex(e => e.id === id && e.userId === userId);
+      if (i === -1) return null;
+      const [removed] = store.splice(i, 1);
+      return removed ?? null;
+    },
   };
 }
 
-describe("Entries.update grams (application)", () => {
-  it("actualiza si pertenece al usuario", async () => {
-    const repo = makeEntriesRepoWith([{ id: "e1", userId: "u1", grams: 100 }]);
+describe("Entries.updateGrams", () => {
+  it("actualiza grams y retorna la entry", async () => {
+    const repo = makeEntriesRepo([{ id: "e1", userId: "u1", grams: 100 }]);
     const uc = new UpdateEntryGrams(repo);
-    const out = await uc.run("u1", "e1", 200);
-    expect(out.grams).toBe(200);
+    const out = await uc.run("u1", "e1", 250);
+    expect(out.grams).toBe(250);
   });
 
-  it("lanza NOT_FOUND si no pertenece al usuario", async () => {
-    const repo = makeEntriesRepoWith([{ id: "e1", userId: "u1", grams: 100 }]);
+  it("lanza GRAMS_INVALID si grams <= 0", async () => {
+    const repo = makeEntriesRepo([{ id: "e1", userId: "u1", grams: 100 }]);
     const uc = new UpdateEntryGrams(repo);
-    await expect(uc.run("u2", "e1", 200)).rejects.toMatchObject({ name: "DomainError", message: "NOT_FOUND" });
+    await expect(uc.run("u1", "e1", 0)).rejects.toMatchObject({ code: "GRAMS_INVALID" });
+  });
+
+  it("lanza NOT_FOUND si no existe o no pertenece al user", async () => {
+    const repo = makeEntriesRepo([{ id: "e1", userId: "u1", grams: 100 }]);
+    const uc = new UpdateEntryGrams(repo);
+    await expect(uc.run("u2", "e1", 120)).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 });

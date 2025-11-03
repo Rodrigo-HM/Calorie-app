@@ -2,7 +2,7 @@ import { db } from '../../../shared/infrastructure/db/database';
 import type {
   Profile as DomainProfile,
   ProfileRepository as ProfileRepositoryPort,
-} from '../../../profile/aplication/ports/ProfileRepository';
+} from '../../domain/ProfileRepository';
 
 // Tipo interno de almacenamiento (incluye campos infra como updatedAt)
 type StoredProfile = DomainProfile & { updatedAt: string };

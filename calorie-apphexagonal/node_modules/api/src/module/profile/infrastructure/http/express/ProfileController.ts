@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { presentProfileAndGoals } from "../presenters";
 import { parse } from "src/module/shared/infrastructure/http/parse";
-import type { ProfilePatch, Profile } from "src/module/profile/aplication/ports/ProfileRepository";
-import type { Goals } from "src/module/goals/aplication/ports/GoalsRepository";
-import type { IUpdateProfile, IRecalculateAndSaveGoals } from "src/module/profile/aplication/ports/profile.usecases";
+import type { ProfilePatch, Profile } from "src/module/profile/domain/ProfileRepository";
+import type { Goals } from "src/module/goals/domain/GoalsRepository";
+import type { IUpdateProfile, IRecalculateAndSaveGoals } from "src/module/profile/application/ports/profile.usecases";
 
 const ProfilePatchSchema = z.object({
   name: z.string().min(1).optional(),

@@ -1,28 +1,25 @@
-import { Request, Response, NextFunction } from "express";
-import { TokenVerifier } from "../../../token/token.types";
+import type { Request, Response, NextFunction } from "express";
 
+// Verificador asíncrono (encaja con JwtTokenService)
+export interface TokenVerifier {
+  verify<T = unknown>(token: string): Promise<T>;
+}
 
-// inyecta el verificador de tokens (JWT, o el que sea)
+// Crea el middleware de auth esperando un verificador async
 export function buildAuthMiddleware(verifier: TokenVerifier) {
-return function auth(req: Request, res: Response, next: NextFunction) {
-const isTest = process.env.NODE_ENV === "test";
-const header = req.headers.authorization;
-const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const auth = req.headers.authorization || "";
+      const [scheme, token] = auth.split(" ");
+      if (!token || (scheme && scheme.toLowerCase() !== "bearer")) {
+        return res.status(401).json({ error: "UNAUTHORIZED" });
+      }
 
-// bypass en test: sin token o token == "test"
-if (isTest && (!token || token === "test")) {
-  (req as any).user = { id: "test-user", sub: "test-user", email: "test@example.com" };
-  return next();
-}
-
-if (!token) return res.status(401).json({ error: "No token" });
-
-try {
-  const payload = verifier.verify<{ sub: string; email?: string }>(token);
-  (req as any).user = { id: payload.sub, sub: payload.sub, email: payload.email };
-  return next();
-} catch {
-  return res.status(401).json({ error: "Token inválido" });
-}
-};
+      const payload = await verifier.verify<{ sub: string; email?: string }>(token);
+      (req as any).user = { id: (payload as any).sub, email: (payload as any).email };
+      return next();
+    } catch {
+      return res.status(401).json({ error: "UNAUTHORIZED" });
+    }
+  };
 }

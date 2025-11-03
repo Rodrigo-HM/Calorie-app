@@ -1,4 +1,4 @@
-import { UpdateProfile } from "src/module/profile/aplication/UpdateProfile";
+import { UpdateProfile } from "src/module/profile/application/UpdateProfile";
 
 function makeProfileRepo(initial: any | null = null) {
   let store = initial;

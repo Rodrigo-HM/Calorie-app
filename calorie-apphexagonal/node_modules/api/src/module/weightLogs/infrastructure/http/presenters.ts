@@ -1,13 +1,31 @@
-import type { StoredWeightLog } from "src/module/weightLogs/aplication/ports/WeightLogsRepository";
+import type { WeightLog } from "../../domain/WeightLogsRepository";
 
-export type WeightLogView = Omit<StoredWeightLog, "userId" | "createdAt"> & { date: string };
+export type WeightLogDTO = {
+  id: string;
+  userId: string;
+  dateISO: string;
+  weightKg: number;
+  createdAt: string;
+  bodyFat?: number;
+};
+export type WeightLogView = WeightLogDTO & { date: string }; // alias legacy
 
-export function presentWeightLog(w: StoredWeightLog | any): WeightLogView {
-  const dateISO = (w.dateISO ?? w.date) as string; // compat: usa date si falta dateISO
-  const { userId: _u, createdAt: _c, ...rest } = w;
-  return { ...rest, date: dateISO };
+function toDTO(w: WeightLog): WeightLogDTO {
+  return {
+    id: w.id,
+    userId: w.userId,
+    dateISO: w.dateISO,
+    weightKg: w.weightKg,
+    createdAt: w.createdAt,
+    ...(w.bodyFat != null ? { bodyFat: w.bodyFat } : {}),
+  };
 }
 
-export function presentWeightLogs(items: Array<StoredWeightLog | any>): WeightLogView[] {
-  return items.map(presentWeightLog);
+export function presentWeightLog(w: WeightLog): WeightLogView {
+  const dto = toDTO(w);
+  return { ...dto, date: dto.dateISO };
+}
+
+export function presentWeightLogs(list: WeightLog[]): WeightLogView[] {
+  return list.map(presentWeightLog);
 }

@@ -1,7 +1,7 @@
 import type {
   FoodsReadRepository,
   Food,
-} from "../../src/module/foods/aplication/ports/FoodsReadRepository"; 
+} from "../../src/module/foods/application/ports/FoodsReadRepository"; 
 
 export function makeFoodsRepo(foods: Food[] = []): FoodsReadRepository {
   return {

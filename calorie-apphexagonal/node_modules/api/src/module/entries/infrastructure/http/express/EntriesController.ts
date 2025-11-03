@@ -5,7 +5,7 @@ import type {
   IListEntriesByDay,
   IUpdateEntryGrams,
   IRemoveEntry,
-} from "src/module/entries/aplication/ports/entries.usecases";
+} from "src/module/entries/application/ports/entries.usecases";
 import { presentEntry, presentEntriesWithTotals } from "../presenters";
 
 const AddSchema = z.object({
@@ -45,18 +45,19 @@ export class EntriesController {
     } catch (e) { return next(e); }
   };
 
+  // NUEVO: delega normalización de fecha al use-case (Clock)
   add = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = AddSchema.parse(req.body ?? {});
       const userId = (req as any).user?.id ?? "u1";
-      let dateISO: string;
-      if (!body.date) dateISO = new Date().toISOString();
-      else if (/^\d{4}-\d{2}-\d{2}$/.test(body.date)) dateISO = `${body.date}T00:00:00.000Z`;
-      else {
-        const d = new Date(body.date);
-        dateISO = Number.isNaN(d.getTime()) ? `${body.date}T00:00:00.000Z` : d.toISOString();
-      }
-      const item = await this.createEntry.run(userId, { foodId: body.foodId, grams: body.grams, dateISO });
+
+      const item = await this.createEntry.run({
+        userId,
+        foodId: body.foodId,
+        grams: body.grams,
+        date: body.date, // YYYY-MM-DD o ISO; el use-case lo normaliza a ISO
+      });
+
       return res.status(201).json(presentEntry(item));
     } catch (e) { return next(e); }
   };
