@@ -85,7 +85,7 @@ export function setProfileCache(p: Profile | null): void {
 
 // Auth
 export async function login(email: string, password: string) {
-  return http<{ token: string; user: { id: string; email: string } }>(`${API}/api/auth/login`, {
+  return http<{ accessToken: string; user: { id: string; email: string } }>(`${API}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -93,7 +93,7 @@ export async function login(email: string, password: string) {
 }
 
 export async function register(email: string, password: string) {
-  return http<{ id: string; email: string }>(`${API}/api/auth/register`, {
+  return http<{ accessToken: string; user: { id: string; email: string } }>(`${API}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

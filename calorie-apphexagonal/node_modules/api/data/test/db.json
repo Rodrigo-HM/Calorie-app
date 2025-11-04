@@ -121,10 +121,10 @@
   "goals": [
     {
       "userId": "u1",
-      "kcal": 2759,
-      "protein": 144,
-      "carbs": 402,
-      "fat": 64
+      "kcal": 2200,
+      "protein": 140,
+      "carbs": 240,
+      "fat": 70
     }
   ],
   "profiles": [
@@ -136,7 +136,7 @@
       "weightKg": 80,
       "activity": "moderate",
       "goal": "maintain",
-      "updatedAt": "2025-11-03T14:30:15.117Z"
+      "updatedAt": "2025-11-04T07:44:49.721Z"
     }
   ],
   "weightLogs": [

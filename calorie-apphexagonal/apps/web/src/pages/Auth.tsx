@@ -43,7 +43,7 @@ setError("Registro correcto. Inicia sesión.");
 push?.("Registro correcto. Inicia sesión.", "success"); //Toast de registro correcto
 } else {
 const res = await login(email, password); //llamamos a la API de login
-localStorage.setItem("token", res.token); //guardamos el token en el almacenamiento local
+localStorage.setItem("token", res.accessToken); //guardamos el token en el almacenamiento local
 push?.("Bienvenido", "success"); //Toast de bienvenida
 navigate("/diary", { replace: true }); //redireccionamos al diario y evitamos que el usuario pueda volver a la página de login con el botón de atrás
 }

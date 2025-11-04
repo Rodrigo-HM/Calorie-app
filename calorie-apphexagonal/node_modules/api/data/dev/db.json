@@ -47,6 +47,12 @@
       "email": "5@5.com",
       "passwordHash": "$2b$10$DybEle5Uuer8cvsbbcWS7uStyE6tEg9v3ollDnaB.GSoI14thtTaS",
       "createdAt": "2025-10-30T13:31:25.082Z"
+    },
+    {
+      "id": "f910db75-4e1e-4e2e-aaba-86445d978294",
+      "email": "a@b.com",
+      "passwordHash": "$2b$10$pFI8UrksxJtfyfH1hRN1v.x7pYrQKjMhTXnO.S5V3x1/cUJ.DyxLa",
+      "createdAt": "2025-11-03T14:36:18.855Z"
     }
   ],
   "foods": [
