@@ -1,6 +1,7 @@
 import { User } from "../domain/User";
 import type { UserRepository } from "../domain/UserRepository";
-import type { Hasher, TokenService } from "./ports/security";
+import type { Hasher } from "../domain/security/Hasher";
+import type { TokenService } from "../domain/security/TokenService";
 
 type AuthResult = { user: { id: string; email: string }; accessToken: string };
 

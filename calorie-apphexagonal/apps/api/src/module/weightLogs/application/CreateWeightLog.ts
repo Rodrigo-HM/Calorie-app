@@ -1,7 +1,7 @@
 import { WeightLog } from "../domain/WeightLog";
 import type { WeightLogsRepository } from "../domain/WeightLogsRepository";
-import type { Clock } from "./ports/Clock";
-import type { IdGenerator } from "../application/ports/IdGenerator";
+import type { Clock } from "../domain/Clock";
+import type { IdGenerator } from "../domain/IdGenerator";
 
 export class CreateWeightLog {
   constructor(

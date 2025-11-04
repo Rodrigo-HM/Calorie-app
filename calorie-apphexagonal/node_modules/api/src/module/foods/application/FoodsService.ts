@@ -1,4 +1,4 @@
-import type { FoodsReadRepository } from "./ports/FoodsReadRepository";
+import type { FoodsReadRepository } from "../domain/FoodsReadRepository";
 
 export type ListFoodsInput = {
   search?: string;

@@ -1,7 +1,7 @@
 import { ListEntriesByDay } from "src/module/entries/application/use-cases/ListEntriesByDay";
 import type { EntriesRepository } from "src/module/entries/domain/EntriesRepository";
 import { Entry, type EntryCreateProps } from "src/module/entries/domain/Entry";
-import type { FoodsReadRepository } from "src/module/foods/application/ports/FoodsReadRepository";
+import type { FoodsReadRepository } from "src/module/foods/domain/FoodsReadRepository";
 
 type Seed = Partial<EntryCreateProps> & { id: string; userId: string };
 

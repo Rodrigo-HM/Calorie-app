@@ -1,8 +1,8 @@
 import { Entry } from "../../domain/Entry";
 import type { EntriesRepository } from "../../domain/EntriesRepository";
-import type { FoodsReadRepository } from "../ports/FoodsReadRepository";
-import type { IdGenerator } from "../ports/IdGenerator";
-import type { Clock } from "../ports/Clock";
+import type { FoodsReadRepository } from "../../domain/FoodsReadRepository";
+import type { IdGenerator } from "../../domain/IdGenerator";
+import type { Clock } from "../../domain/Clock";
 
 export class CreateEntry {
   constructor(

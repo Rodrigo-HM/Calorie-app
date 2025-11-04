@@ -1,5 +1,5 @@
 import type { EntriesRepository, Entry } from "../../domain/EntriesRepository";
-import type { FoodsReadRepository } from "../ports/FoodsReadRepository";
+import type { FoodsReadRepository } from "../../domain/FoodsReadRepository";
 
 export class ListEntriesByDay {
   constructor(

@@ -4,7 +4,9 @@ import { presentProfileAndGoals } from "../presenters";
 import { parse } from "src/module/shared/infrastructure/http/parse";
 import type { ProfilePatch, Profile } from "src/module/profile/domain/ProfileRepository";
 import type { Goals } from "src/module/goals/domain/GoalsRepository";
-import type { IUpdateProfile, IRecalculateAndSaveGoals } from "src/module/profile/application/ports/profile.usecases";
+import type { UpdateProfile } from "../../../application/UpdateProfile";
+import type { RecalculateAndSaveGoals } from "../../../application/RecalculateAndSaveGoals";
+
 
 const ProfilePatchSchema = z.object({
   name: z.string().min(1).optional(),
@@ -19,8 +21,8 @@ const ProfilePatchSchema = z.object({
 
 export class ProfileController {
   constructor(
-    private readonly updateProfile: IUpdateProfile,
-    private readonly recalcGoals: IRecalculateAndSaveGoals,
+    private readonly updateProfile: UpdateProfile,
+    private readonly recalcGoals: RecalculateAndSaveGoals,
     private readonly profileRepo: { get(userId: string): Promise<Profile | null> }
   ) {}
 

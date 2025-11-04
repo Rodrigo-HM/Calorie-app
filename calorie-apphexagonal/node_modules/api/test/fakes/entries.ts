@@ -1,4 +1,3 @@
-// test/fakes/entries.ts
 import type { EntriesRepository } from "src/module/entries/domain/EntriesRepository";
 import { Entry, type EntryCreateProps } from "src/module/entries/domain/Entry";
 

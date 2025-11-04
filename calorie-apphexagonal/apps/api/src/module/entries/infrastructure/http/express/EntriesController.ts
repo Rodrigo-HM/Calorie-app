@@ -1,11 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import type {
-  ICreateEntry,
-  IListEntriesByDay,
-  IUpdateEntryGrams,
-  IRemoveEntry,
-} from "src/module/entries/application/ports/entries.usecases";
+import { CreateEntry } from "../../../application/use-cases/CreateEntry";
+import { ListEntriesByDay } from "../../../application/use-cases/ListEntriesByDay";
+import { UpdateEntryGrams } from "../../../application/use-cases/UpdateEntryGrams";
+import { RemoveEntry } from "../../../application/use-cases/RemoveEntry";
 import { presentEntry, presentEntriesWithTotals } from "../presenters";
 
 const AddSchema = z.object({
@@ -30,17 +28,17 @@ const UpdateSchema = z.object({
 
 export class EntriesController {
   constructor(
-    private readonly createEntry: ICreateEntry,
-    private readonly listByDay: IListEntriesByDay,
-    private readonly updateGramsUC: IUpdateEntryGrams,
-    private readonly removeEntryUC: IRemoveEntry
-  ) {}
+  private readonly createEntry: CreateEntry,
+  private readonly listEntriesByDay: ListEntriesByDay,
+  private readonly updateEntryGrams: UpdateEntryGrams,
+  private readonly removeEntry: RemoveEntry
+) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { date } = ListSchema.parse(req.query);
       const userId = (req as any).user?.id ?? "u1";
-      const out = await this.listByDay.run(userId, date);
+      const out = await this.listEntriesByDay.run(userId, date);
       return res.json(presentEntriesWithTotals(out.items, out.totals));
     } catch (e) { return next(e); }
   };
@@ -67,7 +65,7 @@ export class EntriesController {
       const { grams } = UpdateSchema.parse(req.body ?? {});
       const userId = (req as any).user?.id ?? "u1";
       const { id } = req.params;
-      const item = await this.updateGramsUC.run(userId, id, grams);
+      const item = await this.updateEntryGrams.run(userId, id, grams);
       return res.json(item);
     } catch (e) { return next(e); }
   };
@@ -76,7 +74,7 @@ export class EntriesController {
     try {
       const userId = (req as any).user?.id ?? "u1";
       const { id } = req.params;
-      await this.removeEntryUC.run(userId, id);
+      await this.removeEntry.run(userId, id);
       return res.json({ ok: true });
     } catch (e) { return next(e); }
   };

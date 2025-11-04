@@ -1,7 +1,8 @@
 import { AuthService } from "src/module/auth/application/auth.service";
 import { makeUsersRepoFake } from "../../fakes/users";
 import type { UserRepository } from "src/module/auth/domain/UserRepository";
-import type { Hasher, TokenService } from "src/module/auth/application/ports/security";
+import { TokenService } from "src/module/auth/domain/security/TokenService";
+import type { Hasher } from "src/module/auth/domain/security/Hasher";
 
 const fakeHasher: Hasher = {
   hash: async (p) => `hash:${p}`,

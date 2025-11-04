@@ -2,7 +2,7 @@ import { db } from "../../../shared/infrastructure/db/database";
 import type {
   FoodsReadRepository as FoodsReadRepositoryPort,
   Food,
-} from "../../../foods/application/ports/FoodsReadRepository";
+} from "../../../foods/domain/FoodsReadRepository";
 
 export class FoodsReadRepositoryLowdb implements FoodsReadRepositoryPort {
   async getById(id: string): Promise<Food | null> {

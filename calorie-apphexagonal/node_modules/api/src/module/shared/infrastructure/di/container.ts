@@ -35,16 +35,16 @@ import { CreateEntry } from "src/module/entries/application/use-cases/CreateEntr
 import { ListEntriesByDay } from "src/module/entries/application/use-cases/ListEntriesByDay";
 import { UpdateEntryGrams } from "src/module/entries/application/use-cases/UpdateEntryGrams";
 import { RemoveEntry } from "src/module/entries/application/use-cases/RemoveEntry";
-import type { IdGenerator as EntriesIdGenerator } from "src/module/entries/application/ports/IdGenerator";
-import type { Clock as EntriesClock } from "src/module/entries/application/ports/Clock";
+import type { IdGenerator as EntriesIdGenerator } from "src/module/entries/domain/IdGenerator";
+import type { Clock as EntriesClock } from "src/module/entries/domain/Clock";
 import { EntriesController } from "src/module/entries/infrastructure/http/express/EntriesController";
 
 // WeightLogs
 import { WeightLogsRepositoryLowdb } from "src/module/weightLogs/infrastructure/repository/WeightLogsRepositoryLowdb";
 import { ListWeightLogs } from "src/module/weightLogs/application/ListWeightLogs";
 import { CreateWeightLog } from "src/module/weightLogs/application/CreateWeightLog";
-import type { IdGenerator as WLIdGenerator } from "src/module/weightLogs/application/ports/IdGenerator";
-import type { Clock as WLClock } from "src/module/weightLogs/application/ports/Clock";
+import type { IdGenerator as WLIdGenerator } from "src/module/weightLogs/domain/IdGenerator";
+import type { Clock as WLClock } from "src/module/weightLogs/domain/Clock";
 import { WeightLogsController } from "src/module/weightLogs/infrastructure/http/express/WeightLogsController";
 
 // Auth middleware builder

@@ -1,5 +1,5 @@
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
-import type { TokenService } from "src/module/auth/application/ports/security";
+import type { TokenService } from "src/module/auth/domain/security/TokenService";
 
 export class JwtTokenService implements TokenService {
   constructor(private readonly secret: Secret) {}

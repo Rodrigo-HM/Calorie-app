@@ -1,4 +1,4 @@
-import type { TokenService } from "src/module/auth/application/ports/security";
+import type { TokenService } from "src/module/auth/domain/security/TokenService";
 
 export function buildAuthMiddleware(tokens: TokenService) {
   return function authMiddleware(req: any, res: any, next: any) {
